@@ -39,13 +39,13 @@ public class ProdutoController {
     // Método para obter um produto específico pelo ID
     @GetMapping("/{id}")
     public ResponseEntity getById(@PathVariable(value = "id") Integer id) {
-
+    
             // Verifica se o produto existe no banco de dados
             Optional produto = repository.findById(id);
 
             
             if(produto.isEmpty()){ //condição para verificar se o produto existe
-
+            
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
             
             }
