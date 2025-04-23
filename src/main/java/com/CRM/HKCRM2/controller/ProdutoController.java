@@ -18,39 +18,36 @@ import org.springframework.context.annotation.Bean;
 import com.CRM.HKCRM2.repositories.ProdutoRepository;
 
 
-@RestController
-@RequestMapping("/produto")
+
+@RestController                                                 // Indica que esta classe é um controlador REST
+@RequestMapping("/produto")                                     // Define o caminho base para os endpoints deste controlador
 public class ProdutoController {
 
 
+    @Autowired                                                  // Injeção de dependência do repositório
+    ProdutoRepository repository;                               // Repositório para acessar os dados do produto
 
-    @Autowired // Injeção de dependência do repositório
-    ProdutoRepository repository; // Repositório para acessar os dados do produto
-
-
-
-    // Método para obter todos os produtos
-    @GetMapping
+    // Método para listar todos os produtos
+    @GetMapping                                               
     public ResponseEntity getAll() {
         List<Produto> ListProdutos = repository.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(ListProdutos);
-    }
 
+
+
+    }
     // Método para obter um produto específico pelo ID
-    @GetMapping("/{id}")
+    @GetMapping("/{id}")                                         
     public ResponseEntity getById(@PathVariable(value = "id") Integer id) {
     
-            // Verifica se o produto existe no banco de dados
-            Optional produto = repository.findById(id);
+            Optional produto = repository.findById(id);                                                 // Verifica se o produto existe no banco de dados
 
-            
-            if(produto.isEmpty()){ //condição para verificar se o produto existe
-            
+            if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
             
             }
             
-            return ResponseEntity.status(HttpStatus.FOUND).body(produto.get());  // Se o produto for encontrado, retorna o produto com status 302
+            return ResponseEntity.status(HttpStatus.FOUND).body(produto.get());                         // Se o produto for encontrado, retorna o produto com status 302
 
     }
 
