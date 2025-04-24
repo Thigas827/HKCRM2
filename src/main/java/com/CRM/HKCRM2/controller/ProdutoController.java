@@ -1,4 +1,5 @@
-package com.CRM.HKCRM2.controller;
+
+package com.CRM.HKCRM2.controller; // Importações necessárias para o controlador de produtos
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import com.CRM.HKCRM2.repositories.ProdutoRepository;
+// -------------------------------------------------------------Classe ProdutoController é responsável por gerenciar os endpoints REST relacionados à entidade Produto,
+//------------------------------------------------------------- permitindo operações como listar, buscar, salvar, atualizar e deletar produtos.
 
 
 
@@ -40,7 +43,7 @@ public class ProdutoController {
     }
     // Método para obter um produto específico pelo ID
     @GetMapping("/{id}")                                         
-    public ResponseEntity getById(@PathVariable(value = "id") Integer id) {
+    public ResponseEntity getById(@PathVariable(value = "id") Integer id) {                             // Recebe o ID do produto como parâmetro
     
             Optional produto = repository.findById(id);                                                 // Verifica se o produto existe no banco de dados
 
@@ -55,10 +58,10 @@ public class ProdutoController {
 
     // Método para salvar um novo produto
     @PostMapping
-    public ResponseEntity save(@RequestBody ProdutoDtos dtos) {
-        var produto = new Produto();
-        BeanUtils.copyProperties(dtos, produto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));
+    public ResponseEntity save(@RequestBody ProdutoDtos dtos) {                                         // Recebe os dados do produto no corpo da requisição
+        var produto = new Produto();                                                                    // Cria um novo objeto Produto
+        BeanUtils.copyProperties(dtos, produto);                                                        // Copia as propriedades do DTO para o objeto Produto
+        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));                // Salva o produto no banco de dados e retorna o produto salvo com status 201
     }
 
     // Método para atualizar um produto existente
@@ -74,5 +77,21 @@ public class ProdutoController {
         return ResponseEntity.status(HttpStatus.OK).body("Produto deletado com sucesso"); 
 
     }
+
+    // Método para atualizar um produto existente
+    @PutMapping("/{id}")
+    public ResponseEntity update(@PathVariable(value = "id") Integer id, @RequestBody ProdutoDtos dtos) {
+        Optional<Produto> produto = repository.findById(id);                                           // Verifica se o produto existe no banco de dados
+
+            if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
+            
+        }
+        var produtoModel = produto.get();                                                             // Se o produto for encontrado, obtém o produto
+        BeanUtils.copyProperties(dtos, produtoModel);                                          // Copia as propriedades do DTO para o produto existente                                              
+        return ResponseEntity.status(HttpStatus.OK).body(repository.save(produtoModel)); // Atualiza o produto no banco de dados e retorna o produto atualizado
+
+    }
+
 
 }
