@@ -5,7 +5,8 @@ import jakarta.persistence.Entity;
 
 
 @Entity(name = "produto") //Define a classe como uma entidade JPA
-@Table(name = "produto") //Define o nome da tabela no banco de dados
+@Inheritance(strategy = InheritanceType.JOINED) // Define a estratégia de herança para a entidade
+@DiscriminatorColumn(name = "tipo_produto", discriminatorType = DiscriminatorType.STRING) // Define a coluna de discriminação para herança
 public class Produto {
 
 

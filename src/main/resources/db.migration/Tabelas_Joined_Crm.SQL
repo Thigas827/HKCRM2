@@ -24,4 +24,4 @@ CREATE TABLE plano (
     CONSTRAINT fk_produto_plano
         FOREIGN KEY (id)
         REFERENCES produto(id)
-        
+);
