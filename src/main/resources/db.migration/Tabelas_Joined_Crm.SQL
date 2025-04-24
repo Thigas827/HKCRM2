@@ -20,3 +20,8 @@ CREATE TABLE doce (
 CREATE TABLE plano (
     id INT PRIMARY KEY,
     duracao_meses INT NOT NULL,
+    valor_mensal DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT fk_produto_plano
+        FOREIGN KEY (id)
+        REFERENCES produto(id)
+        

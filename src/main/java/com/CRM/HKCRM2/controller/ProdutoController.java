@@ -70,7 +70,7 @@ public class ProdutoController {
         Optional<Produto> produto = repository.findById(id);                                           // Verifica se o produto existe no banco de dados
 
             if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");      // Se o produto não for encontrado, retorna 404
             
         }
         repository.delete(produto.get());                                                              // Deleta o produto do banco de dados
@@ -84,7 +84,7 @@ public class ProdutoController {
         Optional<Produto> produto = repository.findById(id);                                            // Verifica se o produto existe no banco de dados
 
             if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");      // Se o produto não for encontrado, retorna 404
             
         }
         var produtoModel = produto.get();                                                               // Se o produto for encontrado, obtém o produto
