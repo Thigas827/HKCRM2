@@ -6,9 +6,11 @@ import com.CRM.HKCRM2.dtos.ProdutoDtos;
 import com.CRM.HKCRM2.model.Produto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,6 +59,20 @@ public class ProdutoController {
         var produto = new Produto();
         BeanUtils.copyProperties(dtos, produto);
         return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));
+    }
+
+    // Método para atualizar um produto existente
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable(value = "id") Integer id) {
+        Optional<Produto> produto = repository.findById(id);                                           // Verifica se o produto existe no banco de dados
+
+            if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
+            
+        }
+        repository.delete(produto.get());                                                              // Deleta o produto do banco de dados
+        return ResponseEntity.status(HttpStatus.OK).body("Produto deletado com sucesso"); 
+
     }
 
 }
