@@ -81,15 +81,15 @@ public class ProdutoController {
     // Método para atualizar um produto existente
     @PutMapping("/{id}")
     public ResponseEntity update(@PathVariable(value = "id") Integer id, @RequestBody ProdutoDtos dtos) {
-        Optional<Produto> produto = repository.findById(id);                                           // Verifica se o produto existe no banco de dados
+        Optional<Produto> produto = repository.findById(id);                                            // Verifica se o produto existe no banco de dados
 
             if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
             
         }
-        var produtoModel = produto.get();                                                             // Se o produto for encontrado, obtém o produto
-        BeanUtils.copyProperties(dtos, produtoModel);                                          // Copia as propriedades do DTO para o produto existente                                              
-        return ResponseEntity.status(HttpStatus.OK).body(repository.save(produtoModel)); // Atualiza o produto no banco de dados e retorna o produto atualizado
+        var produtoModel = produto.get();                                                               // Se o produto for encontrado, obtém o produto
+        BeanUtils.copyProperties(dtos, produtoModel);                                                   // Copia as propriedades do DTO para o produto existente                                              
+        return ResponseEntity.status(HttpStatus.OK).body(repository.save(produtoModel));                // Atualiza o produto no banco de dados e retorna o produto atualizado
 
     }
 
