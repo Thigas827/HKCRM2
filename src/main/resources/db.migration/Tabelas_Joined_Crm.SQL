@@ -22,7 +22,7 @@ CREATE TABLE doce (
 --Create_plano_(Filha)
 CREATE TABLE plano (
     id INT PRIMARY KEY,
-    tipo_plano INT NOT NULL,
+    tipo_plano VARCHAR(255) NOT NULL,
     data_inicio DATE NOT NULL,
     data_fim DATE NOT NULL,
     data_vencimento DATE NOT NULL DEFAULT CURRENT_DATE + INTERVAL '30 days',
