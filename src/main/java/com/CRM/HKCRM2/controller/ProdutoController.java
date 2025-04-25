@@ -57,12 +57,12 @@ public class ProdutoController {
     }
 
     // Método para salvar um novo produto
-    @PostMapping
-    public ResponseEntity save(@RequestBody ProdutoDtos dtos) {                                         // Recebe os dados do produto no corpo da requisição
-        var produto = new Produto();                                                                    // Cria um novo objeto Produto
-        BeanUtils.copyProperties(dtos, produto);                                                        // Copia as propriedades do DTO para o objeto Produto
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));                // Salva o produto no banco de dados e retorna o produto salvo com status 201
-    }
+    // @PostMapping
+    // public ResponseEntity save(@RequestBody ProdutoDtos dtos) {                                         // Recebe os dados do produto no corpo da requisição
+    //     var produto = new Produto();                                                                    // Cria um novo objeto Produto
+    //     BeanUtils.copyProperties(dtos, produto);                                                        // Copia as propriedades do DTO para o objeto Produto
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));                // Salva o produto no banco de dados e retorna o produto salvo com status 201
+    // }
 
     // Método para atualizar um produto existente
     @DeleteMapping("/{id}")
