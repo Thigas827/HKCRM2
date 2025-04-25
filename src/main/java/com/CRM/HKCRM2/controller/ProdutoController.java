@@ -56,13 +56,13 @@ public class ProdutoController {
 
     }
 
-    // Método para salvar um novo produto
-    @PostMapping
-    public ResponseEntity save(@RequestBody ProdutoDtos dtos) {                                         // Recebe os dados do produto no corpo da requisição
-        var produto = new Produto();                                                                    // Cria um novo objeto Produto
-        BeanUtils.copyProperties(dtos, produto);                                                        // Copia as propriedades do DTO para o objeto Produto
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));                // Salva o produto no banco de dados e retorna o produto salvo com status 201
-    }
+    // //Método para salvar um novo produto
+    // @PostMapping
+    // public ResponseEntity save(@RequestBody ProdutoDtos dtos) {                                         // Recebe os dados do produto no corpo da requisição
+    //     var produto = new Produto();                                                                    // Cria um novo objeto Produto
+    //     BeanUtils.copyProperties(dtos, produto);                                                        // Copia as propriedades do DTO para o objeto Produto
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));                // Salva o produto no banco de dados e retorna o produto salvo com status 201
+    // }
 
     // Método para atualizar um produto existente
     @DeleteMapping("/{id}")
@@ -70,7 +70,7 @@ public class ProdutoController {
         Optional<Produto> produto = repository.findById(id);                                           // Verifica se o produto existe no banco de dados
 
             if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");      // Se o produto não for encontrado, retorna 404
             
         }
         repository.delete(produto.get());                                                              // Deleta o produto do banco de dados
@@ -84,7 +84,7 @@ public class ProdutoController {
         Optional<Produto> produto = repository.findById(id);                                            // Verifica se o produto existe no banco de dados
 
             if(produto.isEmpty()){                                                                      //condição para verificar se o produto existe
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado"); // Se o produto não for encontrado, retorna 404
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");      // Se o produto não for encontrado, retorna 404
             
         }
         var produtoModel = produto.get();                                                               // Se o produto for encontrado, obtém o produto

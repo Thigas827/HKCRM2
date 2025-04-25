@@ -5,13 +5,13 @@ import jakarta.persistence.Entity;
 
 
 @Entity(name = "produto") //Define a classe como uma entidade JPA
-@Table(name = "produto") //Define o nome da tabela no banco de dados
-public class Produto {
+@Inheritance(strategy = InheritanceType.JOINED) // Define a estratégia de herança para a entidade
+public abstract class Produto {
 
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
         private String nome;
         private Double preco;
