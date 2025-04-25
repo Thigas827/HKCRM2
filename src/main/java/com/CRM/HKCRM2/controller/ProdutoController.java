@@ -56,7 +56,7 @@ public class ProdutoController {
 
     }
 
-    // Método para salvar um novo produto
+    // //Método para salvar um novo produto
     // @PostMapping
     // public ResponseEntity save(@RequestBody ProdutoDtos dtos) {                                         // Recebe os dados do produto no corpo da requisição
     //     var produto = new Produto();                                                                    // Cria um novo objeto Produto
