@@ -11,7 +11,9 @@ import jakarta.persistence.Table;
 @PrimaryKeyJoinColumn(name = "id")                  // Define a chave primária da tabela 
 public class Doce extends Produto {                 // A chave primária da tabela Doce é a mesma da tabela Produto. Isso significa que a tabela Doce herda a chave primária da tabela Produto
 
+    @Column(name = "quantidade", nullable = false) // Define a coluna quantidade como não nula           
     private Integer quantidade;       
+    @Column(name = "sabor", nullable = false)      // Define a coluna sabor como não nula    
     private String sabor;
 
     @Column(name = "data_compra", columnDefinition = "DATE NOT NULL DEFAULT CURRENT_DATE")
