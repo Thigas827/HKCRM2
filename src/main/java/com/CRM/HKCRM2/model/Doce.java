@@ -11,9 +11,10 @@ import jakarta.persistence.Table;
 @PrimaryKeyJoinColumn(name = "id")                  // Define a chave primária da tabela 
 public class Doce extends Produto {                 // A chave primária da tabela Doce é a mesma da tabela Produto. Isso significa que a tabela Doce herda a chave primária da tabela Produto
 
-    @Column(name = "quantidade", nullable = false) // Define a coluna quantidade como não nula           
-    private Integer quantidade;       
-    @Column(name = "sabor", nullable = false)      // Define a coluna sabor como não nula    
+    @Column(name = "quantidade", nullable = false)  // Define a coluna quantidade como não nula           
+    private Integer quantidade;
+
+    @Column(name = "sabor", nullable = false)
     private String sabor;
 
     @Column(name = "data_compra", columnDefinition = "DATE NOT NULL DEFAULT CURRENT_DATE")
@@ -25,10 +26,10 @@ public class Doce extends Produto {                 // A chave primária da tabe
 
     public Doce(Integer id, String nome, Double preco, String sabor, Integer quantidade, LocalDate dataCompra) {
         // Construtor da classe Doce que recebe parâmetros para inicializar os atributos
-        super(id, nome, preco);                     // Chama o construtor da classe pai (Produto)
-        this.sabor = sabor;                         // Inicializa o atributo sabor
-        this.quantidade = quantidade;               // Inicializa o atributo quantidade
-        this.dataCompra = dataCompra;               // Inicializa o atributo dataCompra
+        super(id, nome, preco);                     
+        this.sabor = sabor;                         
+        this.quantidade = quantidade;               
+        this.dataCompra = dataCompra;               
     }
 
     public String getSabor() {
