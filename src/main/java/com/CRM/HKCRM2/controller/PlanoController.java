@@ -22,7 +22,7 @@ import com.CRM.HKCRM2.model.Plano;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/plano")                            // Define o caminho base para os endpoints deste controlador
+@RequestMapping("/planos")                            // Define o caminho base para os endpoints deste controlador
 public class PlanoController {
 
     @Autowired                                       // Injeção de dependência do serviço de plano
@@ -34,10 +34,12 @@ public class PlanoController {
         return ResponseEntity.ok(service.listAll()); // Retorna a lista de planos com status 200 OK
 }
 
-    @GetMapping("/{id}")                             // Método para obter um plano específico pelo ID
-    public Plano getById(@PathVariable Integer id) { // Recebe o ID do plano como parâmetro
-       return service.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plano não encontrado")); // Verifica se o plano existe no banco de dados
-    }
+@GetMapping("/{id}")
+public ResponseEntity<Plano> getById(@PathVariable Integer id) {
+  Plano plano = service.findById(id)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plano não encontrado"));
+  return ResponseEntity.ok(plano);
+}
 
     @PostMapping
     public ResponseEntity<Plano> create(@RequestBody @Valid PlanoDtos dto) {
