@@ -1,5 +1,6 @@
 package com.CRM.HKCRM2.Service;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,5 +13,27 @@ import java.util.Optional;
 
 @Service
 public class PlanoService {
+
+    @Autowired                                    // Injeção de dependência do repositório 
+    private PlanoRepository repository; 
+
+    public List<Plano> listAll() {                // Método para listar todos os planos
+        return repository.findAll();
+        
+    }
+
+    public Optional<Plano> findById(Integer id) { // Método para encontrar um plano pelo ID
+        return repository.findById(id);
+
+    }
+
+    public Plano create(PlanoDtos dtos) {        // Método para criar um novo plano
+        Plano plano = new Plano();
+        BeanUtils.copyProperties(dtos, plano);
+        return repository.save(plano);          // Salva o plano no repositório
+    }
+
+
+
 
 }
