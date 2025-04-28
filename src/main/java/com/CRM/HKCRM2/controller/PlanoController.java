@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.bind.annotation.RequestMethod;
 import com.CRM.HKCRM2.Service.PlanoService;
 import com.CRM.HKCRM2.dtos.PlanoDtos;
 import com.CRM.HKCRM2.model.Plano;
