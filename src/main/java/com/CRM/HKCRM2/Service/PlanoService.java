@@ -35,16 +35,16 @@ public class PlanoService {
 
     public Optional<Plano> update(Integer id, PlanoDtos dtos) { // Método para atualizar um plano existente
         return repository.findById(id).map(existing ->{ BeanUtils.copyProperties(dtos, existing);
-            return repository.save(existing); // Atualiza o plano no repositório
+            return repository.save(existing);   // Atualiza o plano no repositório
         });
 
     }
     
-    public boolean delete(Integer id) { // Método para deletar um plano pelo ID
+    public boolean delete(Integer id) {         // Método para deletar um plano pelo ID
         return repository.findById(id).map(existing -> { 
-            repository.delete(existing); // Deleta o plano do repositório
+            repository.delete(existing);        // Deleta o plano do repositório
             return true; 
-        }).orElse(false); // Retorna false se o plano não for encontrado
+        }).orElse(false);                 // Retorna false se o plano não for encontrado
 
 }
 }
