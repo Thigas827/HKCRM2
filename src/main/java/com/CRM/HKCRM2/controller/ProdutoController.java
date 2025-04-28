@@ -3,8 +3,10 @@ package com.CRM.HKCRM2.controller; // Importações necessárias para o controla
 
 import java.util.List;
 import java.util.Optional;
-import com.CRM.HKCRM2.dtos.ProdutoDtos;
+
 import com.CRM.HKCRM2.model.Produto;
+import com.CRM.HKCRM2.model.dtos.ProdutoDtos;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

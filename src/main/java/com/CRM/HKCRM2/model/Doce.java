@@ -5,6 +5,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
+// Esta classe representa um "Doce" no sistema. Ela é uma extensão da classe "Produto",
+// o que significa que herda as características básicas de um produto, como ID, nome e preço.
+// Além disso, ela adiciona informações específicas de um doce, como o sabor, a quantidade disponível
+// e a data de compra. A classe também está configurada para ser usada com um banco de dados,
+// onde cada doce é armazenado em uma tabela chamada "doce".
 
 @Entity                                             // Define a classe como uma entidade JPA 
 @Table(name = "doce")                               // Define o nome da tabela no banco de dados
