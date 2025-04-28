@@ -5,13 +5,21 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.CRM.HKCRM2.Service.PlanoService;
+import com.CRM.HKCRM2.dtos.PlanoDtos;
 import com.CRM.HKCRM2.model.Plano;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/plano")                            // Define o caminho base para os endpoints deste controlador
@@ -27,8 +35,33 @@ public class PlanoController {
 }
 
     @GetMapping("/{id}")                             // Método para obter um plano específico pelo ID
-    public ResponseEntity<?> getById(@PathVariable Integer id) { // Recebe o ID do plano como parâmetro
-        return service.findById(id).map(plano -> ResponseEntity.ok(plano)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plano não encontrado"));
+    public Plano getById(@PathVariable Integer id) { // Recebe o ID do plano como parâmetro
+       return service.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plano não encontrado")); // Verifica se o plano existe no banco de dados
+    }
+
+    @PostMapping
+    public ResponseEntity<Plano> create(@RequestBody @Valid PlanoDtos dto) {
+        Plano created = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+
 
     }
-}
+    @PutMapping("/{id}")
+    public ResponseEntity<Plano> update(@PathVariable Integer id, @RequestBody @Valid PlanoDtos dto) {
+        // Se não encontrar, lança exceção que vira 404 automaticamente
+        Plano atualizado = service.update(id, dto)
+            .orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Plano não encontrado")
+            );
+    
+        return ResponseEntity.ok(atualizado);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        if (service.delete(id)) {
+            return ResponseEntity.ok("Plano deletado com sucesso");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plano não encontrado");
+    }
+}    
