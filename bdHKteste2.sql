@@ -1,0 +1,3 @@
+TRUNCATE TABLE produto CASCADE;
+SELECT * FROM produto, doce;
+ALTER SEQUENCE produto_id_seq RESTART WITH 1

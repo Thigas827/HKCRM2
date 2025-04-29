@@ -22,7 +22,7 @@ public class Doce extends Produto {                 // A chave primária da tabe
     @Column(name = "sabor", nullable = false)
     private String sabor;
 
-    @Column(name = "data_compra", columnDefinition = "DATE NOT NULL DEFAULT CURRENT_DATE")
+    @Column(name = "data_compra", columnDefinition = "DATE NOT NULL DEFAULT CURRENT_DATE", insertable = false, updatable = false)
     private LocalDate dataCompra;           
 
     public Doce() {

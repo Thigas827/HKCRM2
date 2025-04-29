@@ -33,3 +33,8 @@ CREATE TABLE plano (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+ALTER TABLE doce (
+    ALTER COLUMN data_compra 
+    SET DEFAULT CURRENT_DATE;
+)
