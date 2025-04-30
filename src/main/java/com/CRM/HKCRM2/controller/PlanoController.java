@@ -28,7 +28,7 @@ public class PlanoController {
     private PlanoService service;                    // Injeção de dependência do serviço de plano
 
 
-    @GetMapping
+    @GetMapping("/listar")                           // Define o endpoint para listar todos os planos
     public ResponseEntity<List<Plano>> getAll() {    // Método para listar todos os planos
         return ResponseEntity.ok(service.listAll()); // Retorna a lista de planos com status 200 OK
 }
@@ -40,14 +40,14 @@ public ResponseEntity<Plano> getById(@PathVariable Integer id) {
   return ResponseEntity.ok(plano);
 }
 
-    @PostMapping
+    @PostMapping("/criar") // Define o endpoint para criar um novo plano
     public ResponseEntity<Plano> create(@RequestBody @Valid PlanoDtos dto) {
         Plano created = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
 
     }
-    @PutMapping("/{id}")
+    @PutMapping("/alterar/{id}")
     public ResponseEntity<Plano> update(@PathVariable Integer id, @RequestBody @Valid PlanoDtos dto) {
         // Se não encontrar, lança exceção que vira 404 automaticamente
         Plano atualizado = service.update(id, dto)
@@ -58,7 +58,7 @@ public ResponseEntity<Plano> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(atualizado);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/remover/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         if (service.delete(id)) {
             return ResponseEntity.ok("Plano deletado com sucesso");

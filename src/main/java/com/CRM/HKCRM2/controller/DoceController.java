@@ -29,7 +29,7 @@ public class DoceController {
     private DoceService service;                    // Injeção de dependência do serviço de doce
 
 
-    @GetMapping
+    @GetMapping("/listar") // Define o endpoint para listar todos os doces
     public ResponseEntity<List<Doce>> getAll() {    // Método para listar todos os planos
         return ResponseEntity.ok(service.listAll()); // Retorna a lista de Doces com status 200 OK
 }
@@ -41,14 +41,15 @@ public ResponseEntity<Doce> getById(@PathVariable Integer id) {
   return ResponseEntity.ok(doce);
 }
 
-    @PostMapping
+    @PostMapping("/criar") // Define o endpoint para criar um novo doce
+
     public ResponseEntity<Doce> create(@RequestBody @Valid DoceDtos dto) {
         Doce created = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
 
     }
-    @PutMapping("/{id}")
+    @PutMapping("/alterar/{id}")
     public ResponseEntity<Doce> update(@PathVariable Integer id, @RequestBody @Valid DoceDtos dto) {
         // Se não encontrar, lança exceção que vira 404 automaticamente
         Doce atualizado = service.update(id, dto)
@@ -59,7 +60,7 @@ public ResponseEntity<Doce> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(atualizado);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/remover/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         if (service.delete(id)) {
             return ResponseEntity.ok("Doce deletado com sucesso");
