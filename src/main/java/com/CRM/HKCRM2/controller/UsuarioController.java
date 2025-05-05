@@ -5,6 +5,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import com.CRM.HKCRM2.Service.UsuarioService;
+import com.CRM.HKCRM2.dtos.LoginDtos;
 import com.CRM.HKCRM2.model.UsuarioMod;
 import com.CRM.HKCRM2.Erros.UsuarioJaExiste;
 
@@ -26,5 +27,13 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 
         }
+    }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDtos dto) {
+        // Aqui você pode implementar a lógica de autenticação
+        // Por exemplo, verificar o e-mail e a senha no banco de dados
+        // Retornar um token JWT ou algo semelhante
+
+        return ResponseEntity.ok("Login bem-sucedido");
     }
 }
