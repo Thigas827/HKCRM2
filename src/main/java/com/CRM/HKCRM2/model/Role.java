@@ -10,6 +10,8 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "nome_role", nullable = false, unique = true)
+    // Define o nome da role, que não pode ser nulo e deve ser único
     private String name; 
 
     // Construtor padrão
