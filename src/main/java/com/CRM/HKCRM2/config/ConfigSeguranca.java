@@ -1,4 +1,5 @@
 package com.CRM.HKCRM2.config;
+import static org.springframework.security.config.Customizer.withDefaults;  // <<-- import estático
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
@@ -8,6 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import com.CRM.HKCRM2.config.CustomUsuarioDetalhesService;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 //
 // Configuração de segurança da aplicação
 // Define a configuração de segurança da aplicação
@@ -18,7 +21,7 @@ public class ConfigSeguranca { // Configuração de segurança
     // Injeta o PasswordEncoder para codificar senhas
     // Injeta o CustomUsuarioDetalhesService para carregar detalhes do usuário
 
-    @Autowired private PasswordEncoder encoder;
+    @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private CustomUsuarioDetalhesService userDetailsService;
 
 
@@ -29,38 +32,25 @@ public class ConfigSeguranca { // Configuração de segurança
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-      http
-        // desabilita CSRF (útil para APIs REST stateless)
-        .csrf(csrf -> csrf.disable())
-  
-        // como é API stateless, não usamos sessão
-        .sessionManagement(sm -> sm
-          .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        )
-  
-        // regras de autorização
-        .authorizeHttpRequests(auth -> auth
-          // endpoints públicos
-          .requestMatchers(HttpMethod.POST, "/usuarios/criar", "/usuarios/login")
-            .permitAll()
-          // só CLIENTE pode comprar
-          .requestMatchers("/compras/**")
-            .hasRole("CLIENTE")
-          // métodos GET em /doces acessíveis a atendente, vendedor e gerente
-          .requestMatchers(HttpMethod.GET, "/doces/**")
-            .hasAnyRole("ATENDENTE", "VENDEDOR", "GERENTE")
-          // DELETE em /doces só para gerente
-          .requestMatchers(HttpMethod.DELETE, "/doces/**")
-            .hasRole("GERENTE")
-          // todo o resto exige autenticação
-          .anyRequest()
-            .authenticated()
-        )
-  
-        // HTTP Basic Auth (pode trocar por formLogin ou JWT)
-        .httpBasic();
-  
-      return http.build();
-    }
-  }
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+      .csrf(csrf -> csrf.disable())
+      .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      // .authenticationProvider(authenticationProvider())  <<--- REMOVA/COMENTE ISSO
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers(HttpMethod.POST, "/usuarios/criar", "/usuarios/login")
+          .permitAll()
+        .requestMatchers("/compras/**")
+          .hasRole("CLIENTE")
+        .requestMatchers(HttpMethod.GET, "/doces/**")
+          .hasAnyRole("ATENDENTE","VENDEDOR","GERENTE")
+        .requestMatchers(HttpMethod.DELETE, "/doces/**")
+          .hasRole("GERENTE")
+        .anyRequest()
+          .authenticated()
+      )
+      .httpBasic(withDefaults());
+
+        return http.build();
+}
+}
