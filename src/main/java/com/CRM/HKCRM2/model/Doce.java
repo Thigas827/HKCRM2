@@ -11,39 +11,41 @@ import jakarta.persistence.Table;
 // e a data de compra. A classe também está configurada para ser usada com um banco de dados,
 // onde cada doce é armazenado em uma tabela chamada "doce".
 
-@Entity                                             // Define a classe como uma entidade JPA 
-@Table(name = "doce")                               // Define o nome da tabela no banco de dados
-@PrimaryKeyJoinColumn(name = "id")                  // Define a chave primária da tabela 
-public class Doce extends Produto {                 // A chave primária da tabela Doce é a mesma da tabela Produto. Isso significa que a tabela Doce herda a chave primária da tabela Produto
+@Entity // Define a classe como uma entidade JPA
+@Table(name = "doce") // Define o nome da tabela no banco de dados
+@PrimaryKeyJoinColumn(name = "id") // Define a chave primária da tabela
+public class Doce extends Produto { // A chave primária da tabela Doce é a mesma da tabela Produto. Isso significa
+                                    // que a tabela Doce herda a chave primária da tabela Produto
 
-    @Column(name = "quantidade", nullable = false)  // Define a coluna quantidade como não nula           
+    @Column(name = "quantidade", nullable = false) // Define a coluna quantidade como não nula
     private Integer quantidade;
 
     @Column(name = "sabor", nullable = false)
     private String sabor;
 
     @Column(name = "data_compra", columnDefinition = "DATE NOT NULL DEFAULT CURRENT_DATE", insertable = false, updatable = false)
-    private LocalDate dataCompra;           
+    private LocalDate dataCompra;
 
     public Doce() {
-        super();                                // Chama o construtor da classe pai (Produto)
+        super(); // Chama o construtor da classe pai (Produto)
     }
 
     public Doce(Integer id, String nome, Double preco, String sabor, Integer quantidade, LocalDate dataCompra) {
         // Construtor da classe Doce que recebe parâmetros para inicializar os atributos
-        super(id, nome, preco);                     
-        this.sabor = sabor;                         
-        this.quantidade = quantidade;               
-        this.dataCompra = dataCompra;               
+        super(id, nome, preco);
+        this.sabor = sabor;
+        this.quantidade = quantidade;
+        this.dataCompra = dataCompra;
     }
 
     public String getSabor() {
-        return sabor;               
+        return sabor;
     }
 
     public void setSabor(String sabor) {
-        this.sabor = sabor;         
+        this.sabor = sabor;
     }
+
     public Integer getQuantidade() {
         return quantidade;
     }
