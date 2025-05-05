@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.*;
 
 import org.springframework.stereotype.Service;
 
+@Service
+// Implementa a interface UserDetailsService para carregar detalhes do usuário
 public class CustomUsuarioDetalhesService implements UserDetailsService {
 
     @Autowired
@@ -24,7 +26,7 @@ public class CustomUsuarioDetalhesService implements UserDetailsService {
 
         // Converte as permissões do usuário em uma lista de autoridades
         var authorities = usuario.getRoles()
-                .stream().map(role -> new SimpleGrantedAuthority(role.getName()))
+                .stream().map(role -> new SimpleGrantedAuthority(role.getNome()))
                 .collect(Collectors.toList());
         // Retorna um objeto UserDetails com as informações do usuário
         

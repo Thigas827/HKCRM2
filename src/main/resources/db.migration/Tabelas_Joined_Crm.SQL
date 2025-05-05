@@ -38,3 +38,4 @@ ALTER TABLE doce (
     ALTER COLUMN data_compra 
     SET DEFAULT CURRENT_DATE;
 )
+

@@ -12,15 +12,15 @@ public class Role {
 
     @Column(name = "nome_role", nullable = false, unique = true)
     // Define o nome da role, que não pode ser nulo e deve ser único
-    private String name; 
+    private String nome; 
 
     // Construtor padrão
     public Role() { 
     }
     // Construtor com parâmetros
-    public Role(Integer id, String name) {
+    public Role(Integer id, String nome) {
         this.id = id;
-        this.name = name;
+        this.nome = nome;
     }
 
     public Integer getId() {
@@ -31,12 +31,12 @@ public class Role {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String nome) {
+        this.nome = nome;
     }
 
 }
