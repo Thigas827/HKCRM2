@@ -33,8 +33,7 @@ public class PlanoService {
 
         // Se nãoi veio dataVencimento no DTO, calcula 30 dias após dataFim
 
-        if (plano.getDataVencimento() == null) {
-
+        if (plano.getDataVencimento() == null) { // Verifica se a data de vencimento é nula
             plano.setDataVencimento(plano.getDataFim().plusDays(30));
         }
 
