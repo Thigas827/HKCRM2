@@ -30,10 +30,12 @@ public class UsuarioController {
     }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDtos dto) {
-        // Aqui você pode implementar a lógica de autenticação
-        // Por exemplo, verificar o e-mail e a senha no banco de dados
-        // Retornar um token JWT ou algo semelhante
-
-        return ResponseEntity.ok("Login bem-sucedido");
+        boolean ok = usuarioService.autenticar(dto.email(), dto.senha());
+        if (ok) {
+            return ResponseEntity.ok("Login bem-sucedido");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body("E-mail ou senha incorretos");
     }
+    
 }
