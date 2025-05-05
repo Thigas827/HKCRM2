@@ -1,5 +1,7 @@
 package com.CRM.HKCRM2.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,8 @@ public class UsuarioController {
 
         }
     }
+
+    // Faz o login do usuário
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDtos dto) {
         boolean ok = usuarioService.autenticar(dto.email(), dto.senha());
@@ -37,5 +41,34 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body("E-mail ou senha incorretos");
     }
-    
+
+    // Lista todos os usuários
+    @GetMapping("/todos")
+    public ResponseEntity<List<UsuarioMod>> listarUsuarios() {
+         List<UsuarioMod> usuarios = usuarioService.listarUsuarios();
+        
+         if (usuarios.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+            
+        return ResponseEntity.ok(usuarios);
+    }
+
+    // Busca um usuário pelo e-mail
+    @GetMapping("/buscar")
+    public ResponseEntity<?> buscarPorEmail(@RequestParam String email) {
+        UsuarioMod usuario = usuarioService.buscarPorEmail(email);
+        if (usuario == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(usuario);
+    }    
+
+    // Deleta um usuário pelo e-mail
+    @DeleteMapping("/deletar")
+    public ResponseEntity<?> deletarPorEmail(@RequestParam String email) {
+        usuarioService.deletarPorEmail(email);
+        return ResponseEntity.ok().build();
+    }
 }
+
