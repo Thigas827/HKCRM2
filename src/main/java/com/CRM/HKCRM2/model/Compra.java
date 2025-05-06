@@ -1,5 +1,6 @@
 package com.CRM.HKCRM2.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -22,9 +23,52 @@ public class Compra {
     @JoinColumn(name = "cliente_id", nullable = false)
     private UsuarioMod cliente;
 
-
-
     @Column(name = "data_compra", nullable = false)
     private LocalDateTime dataCompra = LocalDateTime.now();
+
+    @Column(name = "valor_total", nullable = false)
+    private BigDecimal valorTotal;
+
+    public Compra() {
+    }
+
+    public Compra(UsuarioMod cliente, BigDecimal valorTotal) {
+        this.cliente = cliente;
+        this.valorTotal = valorTotal;
+        this.dataCompra = LocalDateTime.now();
+    }
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public UsuarioMod getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(UsuarioMod cliente) {
+        this.cliente = cliente;
+    }
+
+    public LocalDateTime getDataCompra() {
+        return dataCompra;
+    }
+
+    public void setDataCompra(LocalDateTime dataCompra) {
+        this.dataCompra = dataCompra;
+    }
+
+    public BigDecimal getValorTotal() {
+        return valorTotal;
+    }
+
+    public void setValorTotal(BigDecimal valorTotal) {
+        this.valorTotal = valorTotal;
+    }
 
 }
