@@ -39,3 +39,19 @@ ALTER TABLE doce (
     SET DEFAULT CURRENT_DATE;
 )
 
+-- Compra
+CREATE TABLE compra (
+  id SERIAL PRIMARY KEY,
+  cliente_id UUID NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  data_compra TIMESTAMP NOT NULL DEFAULT NOW(),
+  valor_total DECIMAL(10,2) NOT NULL
+);
+
+-- CompraItem
+CREATE TABLE compra_item (
+  compra_id INT NOT NULL REFERENCES compra(id) ON DELETE CASCADE,
+  produto_id INT NOT NULL REFERENCES produto(id),
+  quantidade INT NOT NULL,
+  preco_unit DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (compra_id, produto_id)
+);
