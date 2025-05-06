@@ -67,8 +67,8 @@ public class Compra {
         return valorTotal;
     }
 
-    public void setValorTotal(BigDecimal valorTotal) {
-        this.valorTotal = valorTotal;
+    public void setValorTotal(BigDecimal total) {
+        this.valorTotal = total;
     }
 
 }
