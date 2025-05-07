@@ -2,6 +2,7 @@ package com.CRM.HKCRM2.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class CompraService {
         compra.setValorTotal(total);
         return compraRepo.save(compra);
     }
-    public List<Compra> listarPorCliente(Integer clienteId) {
+    public List<Compra> listarPorCliente(UUID clienteId) {
         return compraRepo.findByClienteIdOrderByDataCompraDesc(clienteId);
     }
 }
