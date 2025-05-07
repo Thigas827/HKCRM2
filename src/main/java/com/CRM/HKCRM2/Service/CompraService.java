@@ -1,6 +1,7 @@
 package com.CRM.HKCRM2.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,5 +64,8 @@ public class CompraService {
         // 4) Atualiza e salva o valor total da compra
         compra.setValorTotal(total);
         return compraRepo.save(compra);
+    }
+    public List<Compra> listarPorCliente(Integer clienteId) {
+        return compraRepo.findByClienteIdOrderByDataCompraDesc(clienteId);
     }
 }
