@@ -20,23 +20,23 @@
       <!-- 1) Dados do Cliente -->
       <div class="row g-3 mb-4">
         <div class="col-md-6">
-          <label class="form-label">Nome</label>
+          <label class="form-label" for="clienteNome">Nome</label>
           <input type="text" id="clienteNome" class="form-control" required>
         </div>
         <div class="col-md-6">
-          <label class="form-label">E-mail</label>
+          <label class="form-label" for="clienteEmail">E-mail</label>
           <input type="email" id="clienteEmail" class="form-control" required>
         </div>
         <div class="col-md-4">
-          <label class="form-label">CPF</label>
+          <label class="form-label" for="clienteCpf">CPF</label>
           <input type="text" id="clienteCpf" class="form-control" required>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Telefone</label>
+          <label class="form-label" for="clienteTel">Telefone</label>
           <input type="text" id="clienteTel" class="form-control">
         </div>
         <div class="col-md-4">
-          <label class="form-label">Data Nasc.</label>
+          <label class="form-label" for="clienteNasc">Data Nasc.</label>
           <input type="date" id="clienteNasc" class="form-control">
         </div>
       </div>
@@ -54,13 +54,30 @@
       </div>
     </form>
 
-    <pre id="resultado" class="mt-4"></pre>
+    <pre id="resultado" class="mt-4 text-danger"></pre>
   </div>
 
   <script>
-    const AUTH_HEADER = 'Basic ' + btoa('funcionario@exemplo.com:senha123');
+    const AUTH_ADMIN = 'Basic ' + btoa('funcionario@exemplo.com:senha123');
+    const DEFAULT_PASS = 'Temp123!';
+    let authCliente;
+    let docesDisponiveis = [];
 
-    // 1) Cria linhas de item
+    // Carrega doces uma vez ao iniciar a página
+    async function carregarDoces() {
+      try {
+        const resp = await fetch('http://localhost:8080/doces', {
+          headers: { 'Authorization': AUTH_ADMIN }
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        docesDisponiveis = await resp.json();
+      } catch (e) {
+        alert('Falha ao carregar doces:\n' + e.message);
+        docesDisponiveis = [];
+      }
+    }
+
+    // Cria uma nova linha de item usando a lista já carregada
     function novaLinha() {
       const row = document.createElement('div');
       row.className = 'item-row d-flex gap-2 mb-2';
@@ -69,67 +86,68 @@
       select.className = 'form-select produto-select';
       select.required = true;
 
+      // Preenche o select com os doces já carregados
+      select.innerHTML = '';
+      docesDisponiveis.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `${p.nome} (R$ ${p.preco.toFixed(2)})`;
+        select.append(opt);
+      });
+
       const qty = document.createElement('input');
       qty.type = 'number'; qty.min = 1; qty.value = 1;
       qty.className = 'form-control quantidade-input';
 
       const btnRem = document.createElement('button');
-      btnRem.type = 'button'; btnRem.className = 'btn btn-outline-danger';
+      btnRem.type = 'button';
+      btnRem.className = 'btn btn-outline-danger';
       btnRem.innerHTML = '<i class="bi bi-dash-circle"></i>';
-      btnRem.onclick = () => row.remove();
+      btnRem.addEventListener('click', () => row.remove());
 
       row.append(select, qty, btnRem);
       document.getElementById('itens-container').append(row);
-
-      // popular produtos
-      fetch('http://localhost:8080/doces', {
-        headers: { 'Authorization': AUTH_HEADER }
-      })
-      .then(r => r.json())
-      .then(produtos => {
-        select.innerHTML = '';
-        produtos.forEach(p => {
-          const o = document.createElement('option');
-          o.value = p.id;
-          o.textContent = `${p.nome} (R$ ${p.preco.toFixed(2)})`;
-          select.append(o);
-        });
-      });
     }
 
-    document.getElementById('add-item').addEventListener('click', novaLinha);
-    novaLinha();
+    // Inicialização: carrega doces e adiciona a primeira linha
+    document.addEventListener('DOMContentLoaded', async () => {
+      await carregarDoces();
+      novaLinha();
+      document.getElementById('add-item').addEventListener('click', novaLinha);
+    });
 
-    // 2) Submit: cria cliente, depois compra
+    // Submit do formulário: 1) cria cliente 2) registra compra
     document.getElementById('venda-form').addEventListener('submit', async e => {
       e.preventDefault();
-      const resDisplay = document.getElementById('resultado');
-      resDisplay.textContent = '';
+      const log = document.getElementById('resultado');
+      log.textContent = '';
 
-      // --- 2.1) Monta dados do cliente ---
       const cliente = {
-        nome:   document.getElementById('clienteNome').value,
-        email:  document.getElementById('clienteEmail').value,
-        senha:  'Temp123!',                    // você pode gerar/solicitar senha
-        cpf:    document.getElementById('clienteCpf').value,
+        nome: document.getElementById('clienteNome').value,
+        email: document.getElementById('clienteEmail').value,
+        senha: DEFAULT_PASS,
+        cpf: document.getElementById('clienteCpf').value,
         telefone: document.getElementById('clienteTel').value,
         dataNascimento: document.getElementById('clienteNasc').value
       };
 
       try {
-        // 2.2) Cria o cliente
+        // Cria novo cliente
         const rc = await fetch('http://localhost:8080/usuarios/criar', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': AUTH_HEADER
+            'Authorization': AUTH_ADMIN
           },
           body: JSON.stringify(cliente)
         });
         if (!rc.ok) throw new Error('Erro ao criar cliente: ' + await rc.text());
         const clienteCriado = await rc.json();
 
-        // 2.3) Monta itens
+        // Prepara o header com credenciais do próprio cliente
+        authCliente = 'Basic ' + btoa(clienteCriado.email + ':' + DEFAULT_PASS);
+
+        // Monta itens de compra
         const itens = Array.from(
           document.querySelectorAll('#itens-container > .item-row')
         ).map(row => ({
@@ -137,12 +155,12 @@
           quantidade: +row.querySelector('.quantidade-input').value
         }));
 
-        // 2.4) Registra a compra
+        // Registra a compra
         const rp = await fetch('http://localhost:8080/compras', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': AUTH_HEADER
+            'Authorization': authCliente
           },
           body: JSON.stringify({
             clienteId: clienteCriado.id,
@@ -152,11 +170,14 @@
         if (!rp.ok) throw new Error('Erro ao criar compra: ' + await rp.text());
         const compra = await rp.json();
 
-        resDisplay.textContent =
-          `✅ Cliente ${clienteCriado.id} e Compra ${compra.id} registrados!\n` +
+        log.style.color = 'green';
+        log.textContent =
+          `✅ Cliente (${clienteCriado.id}) e Compra (${compra.id}) registrados!\n` +
           JSON.stringify({ cliente: clienteCriado, compra }, null, 2);
+
       } catch (err) {
-        resDisplay.textContent = err.message;
+        log.style.color = 'red';
+        log.textContent = err.message;
       }
     });
   </script>

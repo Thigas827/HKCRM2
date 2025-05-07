@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class ConfigSeguranca {
@@ -22,14 +24,12 @@ public class ConfigSeguranca {
     @Autowired 
     private CustomUsuarioDetalhesService userDetailsService;
 
-    // expõe o AuthenticationManager para ser usado, se precisar
     @Bean
     public AuthenticationManager authenticationManager(
         AuthenticationConfiguration authConfig) throws Exception {
       return authConfig.getAuthenticationManager();
     }
 
-    // registra um AuthenticationProvider usando seu UserDetailsService + PasswordEncoder 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
       DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -40,19 +40,23 @@ public class ConfigSeguranca {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-      http
-        .csrf(csrf -> csrf.disable())
+      // aplica as regras de CORS definidas no corsConfigurer()
+      http.cors(withDefaults())
+          .csrf(csrf -> csrf.disable())
         .sessionManagement(sm -> sm
           .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        // adiciona o provider que sabe carregar usuários e validar senha
         .authenticationProvider(authenticationProvider())
         .authorizeHttpRequests(auth -> auth
+          // libera criação e login de usuários
           .requestMatchers(HttpMethod.POST, "/usuarios/criar", "/usuarios/login")
             .permitAll()
-          .requestMatchers("/compras/**")
+          // registro de compra: apenas clientes autenticados
+          .requestMatchers(HttpMethod.POST, "/compras")
             .hasRole("CLIENTE")
+          // listagem de produtos (doces) para qualquer um
           .requestMatchers(HttpMethod.GET, "/doces/**")
-            .hasAnyRole("ATENDENTE","VENDEDOR","GERENTE")
+            .permitAll()
+          // exclusão de produtos: apenas gerentes
           .requestMatchers(HttpMethod.DELETE, "/doces/**")
             .hasRole("GERENTE")
           .anyRequest()
@@ -61,5 +65,18 @@ public class ConfigSeguranca {
         .httpBasic(withDefaults());
 
       return http.build();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+      return new WebMvcConfigurer() {
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+          registry.addMapping("/**")
+                  .allowedOrigins("http://localhost:5500")
+                  .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+                  .allowCredentials(true);
+        }
+      };
     }
 }
