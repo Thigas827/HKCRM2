@@ -4,48 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Histórico de Vendas</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    .table-container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"/>
 </head>
 <body>
-
-  <div class="table-container">
+  <div class="container py-5">
     <h2 class="mb-4 text-center">Histórico de Vendas</h2>
+    <div class="mb-3">
+      <input type="text" id="clienteIdHist" class="form-control" placeholder="Digite o clienteId (UUID)">
+    </div>
+    <button id="btnBuscar" class="btn btn-primary mb-4">Buscar Histórico</button>
 
     <div class="table-responsive">
-      <table class="table table-striped align-middle">
+      <table class="table table-striped">
         <thead class="table-light">
           <tr>
-            <th>#</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>CPF</th>
-            <th>Produto</th>
-            <th>Data</th>
-            <th class="text-end">Valor (R$)</th>
+            <th>#</th><th>Data</th><th>Total (R$)</th>
           </tr>
         </thead>
-        <tbody>
-         
-        </tbody>
+        <tbody id="tbody-vendas"></tbody>
       </table>
     </div>
+    <pre id="erro" class="text-danger"></pre>
   </div>
+
+  <script>
+    const AUTH_HEADER = 'Basic ' + btoa('fulano@exemplo.com:senha123');
+    document.getElementById('btnBuscar').addEventListener('click', async () => {
+      const id = document.getElementById('clienteIdHist').value.trim();
+      if (!id) return alert('Informe o clienteId');
+      try {
+        const res = await fetch(`http://localhost:8080/compras?clienteId=${id}`, {
+          headers: { 'Authorization': AUTH_HEADER }
+        });
+        if (res.status === 204) {
+          document.getElementById('tbody-vendas').innerHTML = '<tr><td colspan="3">Sem compras</td></tr>';
+          return;
+        }
+        const list = await res.json();
+        const tb = document.getElementById('tbody-vendas');
+        tb.innerHTML = '';
+        list.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${c.id}</td>
+            <td>${new Date(c.dataCompra).toLocaleString()}</td>
+            <td class="text-end">${c.valorTotal.toFixed(2)}</td>
+          `;
+          tb.append(tr);
+        });
+      } catch (e) {
+        document.getElementById('erro').textContent = e;
+      }
+    });
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 </body>
