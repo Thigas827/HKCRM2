@@ -77,4 +77,8 @@ public class CompraItem {
     public void setPrecoUnit(BigDecimal precoUnit) {
         this.precoUnit = precoUnit;
     }
+
+    public String getProdutoNome() {
+        return produto != null ? produto.getNome() : "";
+    }
 }

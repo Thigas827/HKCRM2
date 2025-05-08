@@ -83,7 +83,9 @@
         const list = await res.json();
         if (Array.isArray(list)) {
           list.forEach(c => {
-            const itens = c.itens?.map(i => `${i.produtoNome} x${i.quantidade}`).join(', ') || '';
+            const itens = Array.isArray(c.itens)
+              ? c.itens.map(i => `${i.produtoNome} x${i.quantidade}`).join(', ')
+              : '';
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td>${c.id}</td>
