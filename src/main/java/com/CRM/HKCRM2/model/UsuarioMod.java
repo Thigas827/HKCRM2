@@ -34,10 +34,6 @@ public class UsuarioMod {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
-    private UsuarioMod cliente;
-
     public UsuarioMod() { // Construtor padrão
     } 
 
@@ -73,12 +69,6 @@ public class UsuarioMod {
     }
     public void setSenha(String senha) { // Setter para a senha
         this.senha = senha;
-    }
-    public LocalDateTime getCreatedAt() { // Getter para a data de criação
-        return createdAt;
-    }
-    public void setCreatedAt(LocalDateTime createdAt) { // Setter para a data de criação
-        this.createdAt = createdAt;
     }
 
       // Não criar setter para createdAt (é gerado automaticamente)

@@ -55,3 +55,5 @@ CREATE TABLE compra_item (
   preco_unit DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (compra_id, produto_id)
 );
+
+INSERT INTO role (nome_role) VALUES ('ROLE_CLIENTE'), ('ROLE_ATENDENTE'), ('ROLE_GERENTE');
