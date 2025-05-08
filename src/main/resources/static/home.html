@@ -24,8 +24,19 @@
         </main>
     
     <footer>
-        <form id="cadastro-form">
-            <!-- ...outros campos, como nome, email, senha... -->
+        <form id="cadastro-form" class="container my-4" style="max-width:400px;">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" id="nome" name="nome" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">E-mail</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="password" id="senha" name="senha" class="form-control" required>
+            </div>
             <div class="mb-3">
                 <label for="role" class="form-label">Tipo de usuário:</label>
                 <select id="role" name="role" class="form-select">
@@ -33,7 +44,7 @@
                     <option value="ROLE_ADMIN">Administrador</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Cadastrar</button>
+            <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
         </form>
     </footer>
 
@@ -41,13 +52,11 @@
     document.getElementById('cadastro-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Pegue os valores dos campos do formulário
-        const nome = document.getElementById('nome')?.value || '';
-        const email = document.getElementById('email')?.value || '';
-        const senha = document.getElementById('senha')?.value || '';
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
         const roleSelecionada = document.getElementById('role').value;
 
-        // Monta o objeto usuário
         const usuario = {
             nome: nome,
             email: email,
@@ -55,7 +64,6 @@
             roles: [{ nome: roleSelecionada }]
         };
 
-        // Envia para o backend
         try {
             const resp = await fetch('http://localhost:8080/usuarios/criar', {
                 method: 'POST',
@@ -64,6 +72,7 @@
             });
             if (!resp.ok) throw new Error(await resp.text());
             alert('Usuário cadastrado com sucesso!');
+            document.getElementById('cadastro-form').reset();
         } catch (err) {
             alert('Erro ao cadastrar: ' + err.message);
         }
