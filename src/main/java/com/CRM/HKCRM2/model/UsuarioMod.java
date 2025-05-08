@@ -32,8 +32,11 @@ public class UsuarioMod {
       joinColumns = @JoinColumn(name = "usuario_id"),
       inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-
     private Set<Role> roles = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
+    private UsuarioMod cliente;
 
     public UsuarioMod() { // Construtor padrão
     } 
