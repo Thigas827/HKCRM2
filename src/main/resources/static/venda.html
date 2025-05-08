@@ -58,7 +58,7 @@
   </div>
 
   <script>
-    const AUTH_ADMIN = 'Basic ' + btoa('admin@teste.com:senha123');
+    const AUTH_HEADER = 'Basic ' + btoa('admin@teste.com:senha123');
     const DEFAULT_PASS = 'Temp123!';
     let authCliente;
     let docesDisponiveis = [];
@@ -67,7 +67,7 @@
     async function carregarDoces() {
       try {
         const resp = await fetch('http://localhost:8080/doces/listar', {
-          headers: { 'Authorization': AUTH_ADMIN }
+          headers: { 'Authorization': AUTH_HEADER }
         });
         if (!resp.ok) throw new Error(await resp.text());
         docesDisponiveis = await resp.json();
@@ -79,6 +79,11 @@
 
     // Cria uma nova linha de item usando a lista já carregada
     function novaLinha() {
+      if (docesDisponiveis.length === 0) {
+        alert('Nenhum doce cadastrado. Cadastre doces antes de registrar vendas.');
+        return;
+      }
+
       const row = document.createElement('div');
       row.className = 'item-row d-flex gap-2 mb-2';
 
@@ -128,8 +133,14 @@
         senha: DEFAULT_PASS,
         cpf: document.getElementById('clienteCpf').value,
         telefone: document.getElementById('clienteTel').value,
-        dataNascimento: document.getElementById('clienteNasc').value
+        dataNascimento: document.getElementById('clienteNasc').value,
+        roles: [{ nome: "ROLE_CLIENTE" }]
       };
+
+      if (!cliente.nome || !cliente.email || !cliente.cpf) {
+        alert('Preencha todos os campos obrigatórios!');
+        return;
+      }
 
       try {
         // Cria novo cliente
@@ -137,7 +148,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': AUTH_ADMIN
+            'Authorization': AUTH_HEADER
           },
           body: JSON.stringify(cliente)
         });
@@ -147,6 +158,18 @@
         // Prepara o header com credenciais do próprio cliente
         authCliente = 'Basic ' + btoa(clienteCriado.email + ':' + DEFAULT_PASS);
 
+        alert('Cliente criado! Senha: ' + DEFAULT_PASS);
+
+        log.style.color = 'green';
+        log.textContent = `✅ Cliente (${clienteCriado.id}) criado com sucesso!\n` +
+          JSON.stringify(clienteCriado, null, 2);
+
+      } catch (err) {
+        log.textContent = 'Ocorreu um erro. Tente novamente ou contate o suporte.';
+        return;
+      }
+
+      try {
         // Monta itens de compra
         const itens = Array.from(
           document.querySelectorAll('#itens-container > .item-row')
@@ -171,15 +194,41 @@
         const compra = await rp.json();
 
         log.style.color = 'green';
-        log.textContent =
-          `✅ Cliente (${clienteCriado.id}) e Compra (${compra.id}) registrados!\n` +
-          JSON.stringify({ cliente: clienteCriado, compra }, null, 2);
+        log.textContent += `\n✅ Compra (${compra.id}) registrada com sucesso!\n` +
+          JSON.stringify(compra, null, 2);
+
+        document.getElementById('venda-form').reset();
 
       } catch (err) {
-        log.style.color = 'red';
-        log.textContent = err.message;
+        log.textContent = 'Ocorreu um erro. Tente novamente ou contate o suporte.';
       }
     });
+
+    async function carregarCompras() {
+      try {
+        const res = await fetch('http://localhost:8080/compras/listar', {
+          headers: { 'Authorization': AUTH_HEADER }
+        });
+        const list = await res.json();
+        const tb = document.getElementById('tbody-vendas');
+        tb.innerHTML = '';
+        if (Array.isArray(list)) {
+          list.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${c.id}</td>
+              <td>${new Date(c.dataCompra).toLocaleString()}</td>
+              <td class="text-end">${c.valorTotal.toFixed(2)}</td>
+            `;
+            tb.append(tr);
+          });
+        } else {
+          tb.innerHTML = '<tr><td colspan="3">Erro ao carregar compras</td></tr>';
+        }
+      } catch (err) {
+        alert('Erro ao carregar compras: ' + err.message);
+      }
+    }
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
