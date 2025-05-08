@@ -1,6 +1,8 @@
 package com.CRM.HKCRM2.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,25 +42,24 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     public UsuarioMod criarUsuario(UsuarioMod usuario) {
-        // Verifica se o usuário já existe
         if (usuarioRepository.findByEmail(usuario.getEmail()) != null) {
             throw new UsuarioJaExiste();
         }
-
-        // 2) Hash da senha — AQUI, use a variável 'usuario', não a classe
         String hash = passwordEncoder.encode(usuario.getSenha());
         usuario.setSenha(hash);
 
-        // 3) Garante que a role CLIENTE exista (ou cria)
-        Role clienteRole = roleRepository.findByNome("ROLE_CLIENTE");
-        if (clienteRole == null) {
-            clienteRole = new Role();
-            clienteRole.setName("ROLE_CLIENTE");
-            clienteRole = roleRepository.save(clienteRole);
+        Set<Role> rolesSalvas = new HashSet<>();
+        for (Role role : usuario.getRoles()) {
+            Role roleSalva = roleRepository.findByNome(role.getNome());
+            if (roleSalva == null) {
+                roleSalva = new Role();
+                roleSalva.setName(role.getNome());
+                roleSalva = roleRepository.save(roleSalva);
+            }
+            rolesSalvas.add(roleSalva);
         }
+        usuario.setRoles(rolesSalvas);
 
-        // 4) Associa ao usuário e salva
-        usuario.getRoles().add(clienteRole);
         return usuarioRepository.save(usuario);
     }
 

@@ -24,7 +24,50 @@
         </main>
     
     <footer>
-
+        <form id="cadastro-form">
+            <!-- ...outros campos, como nome, email, senha... -->
+            <div class="mb-3">
+                <label for="role" class="form-label">Tipo de usuário:</label>
+                <select id="role" name="role" class="form-select">
+                    <option value="ROLE_FUNCIONARIO">Funcionário</option>
+                    <option value="ROLE_ADMIN">Administrador</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
+        </form>
     </footer>
+
+    <script>
+    document.getElementById('cadastro-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Pegue os valores dos campos do formulário
+        const nome = document.getElementById('nome')?.value || '';
+        const email = document.getElementById('email')?.value || '';
+        const senha = document.getElementById('senha')?.value || '';
+        const roleSelecionada = document.getElementById('role').value;
+
+        // Monta o objeto usuário
+        const usuario = {
+            nome: nome,
+            email: email,
+            senha: senha,
+            roles: [{ nome: roleSelecionada }]
+        };
+
+        // Envia para o backend
+        try {
+            const resp = await fetch('http://localhost:8080/usuarios/criar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(usuario)
+            });
+            if (!resp.ok) throw new Error(await resp.text());
+            alert('Usuário cadastrado com sucesso!');
+        } catch (err) {
+            alert('Erro ao cadastrar: ' + err.message);
+        }
+    });
+    </script>
 </body>
 </html>
