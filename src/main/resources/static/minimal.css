@@ -2,7 +2,7 @@ body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: url('chucrute.jpg') no-repeat center center fixed;
   background-size: 60vw 60vh;
-  background-color: #f7f7f7;
+  background-color: #eaeaea;
   margin: 0;
   padding: 0;
 }
@@ -39,7 +39,7 @@ section {
   padding: 2rem;
   max-width: 600px;
   margin: 2rem auto 0 auto;
-  background: rgba(255,255,255,0.92);
+  background: rgba(245,245,245,0.92);
   border-radius: 12px;
   box-shadow: 0 4px 32px #0002;
   border: 1.5px solid #eee;
@@ -55,9 +55,9 @@ section.active {
 }
 h2 {
   margin-top: 0;
-  color: #222;
+  color: #333;
   letter-spacing: 1px;
-  text-shadow: 1px 2px 8px #fff4;
+  text-shadow: 1px 2px 8px #fff2;
 }
 h2.dark {
   color: #e0c36b !important;
@@ -72,8 +72,10 @@ input, button, select {
   padding: 0.6rem;
   font-size: 1rem;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid #bbb;
   box-shadow: 0 2px 8px #0001;
+  background: #f7f7f7;
+  color: #222;
 }
 input.dark, select.dark, button.dark {
   background: #232323;
@@ -114,7 +116,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
-  background: #fff;
+  background: #fafafa;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 16px #0001;
