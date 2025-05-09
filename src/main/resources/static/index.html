@@ -1,21 +1,260 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>HKCRM – Portal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HKCRM2 Frontend</title>
   <style>
-    body { font-family: sans-serif; display:flex; align-items:center; justify-content:center;
-           height:100vh; margin:0; background:#fff; }
-    .box { text-align:center; }
-    button { padding:1em 2em; margin:1em; font-size:1rem; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    nav { background: #333; color: #fff; padding: 1rem; display: flex; gap: 1rem; }
+    nav a { color: #fff; text-decoration: none; cursor: pointer; }
+    section { display: none; padding: 1rem; }
+    section.active { display: block; }
+    form { max-width: 600px; margin: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+    input, button, select, textarea { padding: 0.5rem; font-size: 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    .actions button { margin-right: 0.5rem; }
+    #itensCompra label { display: flex; justify-content: space-between; align-items: center; }
+    #itensCompra input { width: 60px; }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>HKCRM</h1>
-    <button onclick="location.href='venda.html'">Registrar Venda</button>
-    <button onclick="location.href='vendas.html'">Histórico de Vendas</button>
-  </div>
+  <nav>
+    <a data-target="login">Login</a>
+    <a data-target="clientes">Clientes</a>
+    <a data-target="doces">Doces</a>
+    <a data-target="planos">Planos</a>
+    <a data-target="compras">Compras</a>
+    <span id="userEmail" style="margin-left:auto"></span>
+  </nav>
+
+  <!-- Login -->
+  <section id="login" class="active">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="E-mail" required>
+      <input type="password" id="senha" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <!-- Clientes + Compra -->
+  <section id="clientes">
+    <h2>Cadastro de Cliente e Compra</h2>
+    <form id="clienteForm">
+      <input type="text" id="nomeCliente" placeholder="Nome" required>
+      <input type="email" id="emailCliente" placeholder="E-mail" required>
+      <input type="text" id="enderecoCliente" placeholder="Endereço">
+      <input type="text" id="telefoneCliente" placeholder="Telefone">
+      <h3>Itens da Compra</h3>
+      <div id="itensCompra"></div>
+      <button type="submit">Cadastrar Cliente + Compra</button>
+    </form>
+    <h3>Lista de Clientes</h3>
+    <table id="tblClientes">
+      <thead>
+        <tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Endereço</th><th>Telefone</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Doces -->
+  <section id="doces">
+    <h2>Gerenciar Doces</h2>
+    <form id="doceForm">
+      <input type="text" id="nomeDoce" placeholder="Nome" required>
+      <input type="number" step="0.01" id="precoDoce" placeholder="Preço" required>
+      <input type="text" id="saborDoce" placeholder="Sabor" required>
+      <input type="number" id="quantidadeDoce" placeholder="Quantidade" required>
+      <button type="submit">Cadastrar Doce</button>
+    </form>
+    <h3>Lista de Doces</h3>
+    <table id="tblDoces">
+      <thead>
+        <tr><th>ID</th><th>Nome</th><th>Preço</th><th>Sabor</th><th>Quantidade</th><th>Ações</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Planos -->
+  <section id="planos">
+    <h2>Gerenciar Planos</h2>
+    <button id="btnNovoPlano">Criar Novo Plano</button>
+    <table id="tblPlanos"><thead><tr><th>ID</th><th>Nome</th><th>Preço</th><th>Tipo</th><th>Início</th><th>Fim</th><th>Vencimento</th><th>Mensalidade</th><th>Ações</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <!-- Compras -->
+  <section id="compras">
+    <h3>Compras do Cliente</h3>
+    <label>Cliente:
+      <select id="filtroCliente" required></select>
+    </label>
+    <button id="btnListarCompras">Listar Compras</button>
+    <table id="tblCompras"><thead><tr><th>ID</th><th>Data</th><th>Valor Total</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <script>
+    const apiUrl = 'http://localhost:8080';
+    let authHeader = '';
+
+    // Navigation
+    document.querySelectorAll('nav a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(link.dataset.target).classList.add('active');
+        if (link.dataset.target === 'clientes') carregarItensCompra();
+      });
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      authHeader = 'Basic ' + btoa(email + ':' + senha);
+      document.getElementById('userEmail').textContent = email;
+      alert('Login configurado!');
+    });
+
+    // API helper
+    async function api(path, method = 'GET', body) {
+      const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      if (authHeader) opts.headers['Authorization'] = authHeader;
+      if (body) opts.body = JSON.stringify(body);
+      const resp = await fetch(apiUrl + path, opts);
+      if (!resp.ok) throw new Error('Erro ' + resp.status);
+      return await resp.json();
+    }
+
+    // Carregar doces para o formulário de compra
+    async function carregarItensCompra() {
+      const doces = await api('/doces');
+      const container = document.getElementById('itensCompra');
+      container.innerHTML = '';
+      doces.forEach(d => {
+        const label = document.createElement('label');
+        label.innerHTML = `<span>${d.nome} (R$ ${d.preco})</span> <input type="number" min="0" value="0" data-id="${d.id}" data-preco="${d.preco}">`;
+        container.appendChild(label);
+      });
+      listarClientes();
+    }
+
+    // Listar clientes
+    async function listarClientes() {
+      const clientes = await api('/usuarios/todos');
+      const tbody = document.querySelector('#tblClientes tbody'); tbody.innerHTML = '';
+      clientes.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${c.id}</td><td>${c.nome}</td><td>${c.email}</td><td>${c.endereco || ''}</td><td>${c.telefone || ''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Cadastrar cliente + compra
+    document.getElementById('clienteForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      // Dados do cliente
+      const cliente = {
+        nome: document.getElementById('nomeCliente').value,
+        email: document.getElementById('emailCliente').value,
+        senha: '123', // senha padrão para MVP
+        roles: [{ nome: 'ROLE_CLIENTE' }],
+        endereco: document.getElementById('enderecoCliente').value,
+        telefone: document.getElementById('telefoneCliente').value
+      };
+      // Criar cliente
+      const criado = await api('/usuarios/criar', 'POST', cliente);
+      // Construir itens de compra
+      const inputs = document.querySelectorAll('#itensCompra input');
+      const itens = [];
+      inputs.forEach(i => {
+        const qtd = parseInt(i.value);
+        if (qtd > 0) itens.push({ produtoId: parseInt(i.dataset.id), quantidade: qtd });
+      });
+      if (itens.length) {
+        await api('/compras', 'POST', { clienteId: criado.id, itens });
+        alert('Cliente e compra registrados!');
+      } else {
+        alert('Cliente registrado (sem compra).');
+      }
+      // Reset formulário
+      e.target.reset();
+      carregarItensCompra();
+    });
+
+    // Doces CRUD
+    async function listarDoces() {
+      const doces = await api('/doces');
+      const tbody = document.querySelector('#tblDoces tbody'); tbody.innerHTML = '';
+      doces.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${d.id}</td><td>${d.nome}</td><td>${d.preco}</td><td>${d.sabor}</td><td>${d.quantidade}</td><td></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    document.getElementById('doceForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const doce = {
+        nome: document.getElementById('nomeDoce').value,
+        preco: parseFloat(document.getElementById('precoDoce').value),
+        sabor: document.getElementById('saborDoce').value,
+        quantidade: parseInt(document.getElementById('quantidadeDoce').value)
+      };
+      await api('/doces/criar', 'POST', doce);
+      alert('Doce cadastrado!');
+      e.target.reset();
+      listarDoces();
+      carregarItensCompra();
+    });
+
+    // Carregar doces ao abrir aba Doces
+    document.querySelector('a[data-target="doces"]').addEventListener('click', listarDoces);
+    // Carregar doces ao abrir aba Clientes
+    document.querySelector('a[data-target="clientes"]').addEventListener('click', carregarItensCompra);
+
+    // Preencher select de clientes para compras
+    async function preencherSelectClientesCompras() {
+      const clientes = await api('/usuarios/todos');
+      const sel = document.getElementById('filtroCliente');
+      sel.innerHTML = '';
+      clientes.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.nome} (${c.email})`;
+        sel.appendChild(opt);
+      });
+    }
+
+    // Listar compras do cliente
+    document.getElementById('btnListarCompras').onclick = async () => {
+      const clienteId = document.getElementById('filtroCliente').value;
+      const tbody = document.querySelector('#tblCompras tbody');
+      tbody.innerHTML = '';
+      if (!clienteId) return;
+      try {
+        const compras = await api(`/compras?clienteId=${clienteId}`);
+        if (!compras.length) {
+          tbody.innerHTML = '<tr><td colspan="3">Sem compras</td></tr>';
+          return;
+        }
+        compras.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${c.id}</td><td>${new Date(c.dataCompra).toLocaleString()}</td><td>${c.valorTotal.toFixed(2)}</td>`;
+          tbody.appendChild(tr);
+        });
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="3">Erro ao buscar compras</td></tr>';
+      }
+    };
+
+    // Carregar select de clientes ao abrir aba Compras
+    document.querySelector('a[data-target="compras"]').addEventListener('click', preencherSelectClientesCompras);
+
+    // Carregar doces na inicialização para evitar erro
+    listarDoces();
+  </script>
 </body>
 </html>

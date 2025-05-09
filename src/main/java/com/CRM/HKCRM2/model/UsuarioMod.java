@@ -23,6 +23,12 @@ public class UsuarioMod {
     @Column(name = "senha_usuario", nullable = false)
     private String senha;
     
+    @Column(name = "endereco")
+    private String endereco;
+
+    @Column(name = "telefone")
+    private String telefone;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -38,12 +44,14 @@ public class UsuarioMod {
     } 
 
 
-    public UsuarioMod(UUID id, String nome, String email, String senha, LocalDateTime createdAt) { // Construtor com parâmetros
+    public UsuarioMod(UUID id, String nome, String email, String senha, LocalDateTime createdAt, String endereco, String telefone) { // Construtor com parâmetros
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.createdAt = createdAt;
+        this.endereco = endereco;
+        this.telefone = telefone;
     }
 
     public UUID getId() { // Getter para o ID
@@ -69,6 +77,19 @@ public class UsuarioMod {
     }
     public void setSenha(String senha) { // Setter para a senha
         this.senha = senha;
+    }
+
+    public String getEndereco() { // Getter para o endereço
+        return endereco;
+    }
+    public void setEndereco(String endereco) { // Setter para o endereço
+        this.endereco = endereco;
+    }
+    public String getTelefone() { // Getter para o telefone
+        return telefone;
+    }
+    public void setTelefone(String telefone) { // Setter para o telefone
+        this.telefone = telefone;
     }
 
       // Não criar setter para createdAt (é gerado automaticamente)

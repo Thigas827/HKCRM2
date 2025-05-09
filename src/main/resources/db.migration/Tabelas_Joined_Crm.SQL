@@ -11,7 +11,7 @@ CREATE TABLE doce (
     id INT PRIMARY KEY,
     sabor VARCHAR(255) NOT NULL,
     quantidade INT NOT NULL,
-    data_compra DATE NOT NULL CURRENT_DATE,
+    data_compra DATE NOT NULL DEFAULT CURRENT_DATE,
     CONSTRAINT fk_produto_doce
         FOREIGN KEY (id)
         REFERENCES produto(id)
@@ -34,10 +34,16 @@ CREATE TABLE plano (
         ON UPDATE CASCADE
 );
 
-ALTER TABLE doce (
-    ALTER COLUMN data_compra 
-    SET DEFAULT CURRENT_DATE;
-)
+-- Tabela de usuários (clientes)
+CREATE TABLE usuario (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome_usuario VARCHAR(255) NOT NULL,
+    email_usuario VARCHAR(255) NOT NULL UNIQUE,
+    senha_usuario VARCHAR(255) NOT NULL,
+    endereco VARCHAR(255),
+    telefone VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Compra
 CREATE TABLE compra (
@@ -57,3 +63,6 @@ CREATE TABLE compra_item (
 );
 
 INSERT INTO role (nome_role) VALUES ('ROLE_CLIENTE'), ('ROLE_ATENDENTE'), ('ROLE_GERENTE');
+
+ALTER TABLE usuario ADD COLUMN endereco VARCHAR(255);
+ALTER TABLE usuario ADD COLUMN telefone VARCHAR(50);
