@@ -1,13 +1,14 @@
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: url('chucrute.jpg') no-repeat center center fixed;
-  background-size: cover;
+  background-size: 60vw 60vh;
+  background-color: #f7f7f7;
   margin: 0;
   padding: 0;
 }
 body.dark {
   background: #181818 url('chucrute.jpg') no-repeat center center fixed;
-  background-size: cover;
+  background-size: 60vw 60vh;
   color: #e0e0e0;
 }
 nav {
