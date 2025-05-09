@@ -1,124 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-br" data-bs-theme="dark">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HK CRM</title>
-  <link rel="icon" href="./gestao.png" type="image/png">
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT"
-    crossorigin="anonymous"
-  >
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>HKCRM – Portal</title>
   <style>
-    html, body {
-      height: 100%;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-    main {
-      flex: 1;
-    }
+    body { font-family: sans-serif; display:flex; align-items:center; justify-content:center;
+           height:100vh; margin:0; background:#fff; }
+    .box { text-align:center; }
+    button { padding:1em 2em; margin:1em; font-size:1rem; }
   </style>
-  
 </head>
-<body class="bg-dark text-light">
-
-  <!-- Navbar -->
-  <header class="navbar navbar-expand-lg navbar-dark bg-black py-3 mb-4 border-bottom">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="./gestao.png" alt="Logo" width="32" height="32" class="me-2">
-        HK CRM
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link text-light" href="#">Início</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="#">Features</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="#">FAQ</a></li>
-          <li class="nav-item"><a class="nav-link text-light" href="#">Sobre nós</a></li>
-        </ul>
-        <div class="d-flex">
-          <a href="login.html" class="btn btn-outline-primary me-2">Entrar</a>
-          <a href="#" class="btn btn-primary">Cadastrar</a>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero -->
-  <main>
-    <section class="py-5 text-center container">
-      <img src="./gestao.png" alt="" width="87" height="87" class="mb-3">
-      <h1 class="display-5 fw-bold">HK CRM</h1>
-      <p class="lead mb-4 text-light">
-        Transforme o relacionamento com seus clientes com o HK CRM!  
-        Gerencie contatos, acompanhe vendas e otimize seus processos em um só lugar.
-      </p>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <a href="./venda.html"><button class="btn btn-lg btn-primary px-4 me-sm-3">Executar compra</button></a>
-        <a href="./vendas.html"><button class="btn btn-lg btn-outline-secondary px-4">Ver clientes</button></a>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="container py-5">
-      <h2 class="pb-2 mb-4 border-bottom text-center">Perguntas Frequentes</h2>
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card bg-black border-secondary h-100">
-            <div class="card-body">
-              <h5 class="card-title">O que é o HK CRM?</h5>
-              <p class="card-text">
-                Plataforma completa de gestão de relacionamento com o cliente.  
-                Organize contatos, gerencie vendas e acompanhe o desempenho da equipe.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card bg-black border-secondary h-100">
-            <div class="card-body">
-              <h5 class="card-title">Preciso instalar algo?</h5>
-              <p class="card-text">
-                Não. O HK CRM é 100% baseado na nuvem.  
-                Basta acessar pelo navegador em qualquer dispositivo.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card bg-black border-secondary h-100">
-            <div class="card-body">
-              <h5 class="card-title">É compatível com celular?</h5>
-              <p class="card-text">
-                Sim! Nossa plataforma é responsiva e funciona perfeitamente  
-                em smartphones e tablets.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="bg-black text-center text-secondary py-4">
-    <div class="container">
-      <p class="mb-0">&copy; 2025 HK CRM. Todos os direitos reservados.</p>
-    </div>
-  </footer>
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6WpDoylGu/5q2HSV4/vZB5xYDIbaTvVVHYHeMZKmBbi4"
-    crossorigin="anonymous"
-  ></script>
+<body>
+  <div class="box">
+    <h1>HKCRM</h1>
+    <button onclick="location.href='venda.html'">Registrar Venda</button>
+    <button onclick="location.href='vendas.html'">Histórico de Vendas</button>
+  </div>
 </body>
 </html>
