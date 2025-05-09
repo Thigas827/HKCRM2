@@ -23,10 +23,13 @@
     <a data-target="login">Login</a>
     <a data-target="cadastro">Cadastro Cliente + Compra</a>
     <a data-target="historico">Histórico de Compras</a>
+    <a data-target="cadastroDoce">Cadastro de Produto (Doce)</a>
+    <a data-target="buscaDoce">Buscar Produto (Doce)</a>
   </nav>
 
   <section id="login" class="active">
     <h2>Login (Fachada)</h2>
+    <img src="pop-cat.gif" alt="cat meme" style="width:120px;display:block;margin:1rem auto;">
     <form id="formLogin">
       <input type="email" id="loginEmail" placeholder="E-mail" required>
       <input type="password" id="loginSenha" placeholder="Senha" required>
@@ -43,10 +46,36 @@
       <input type="text" id="endereco" placeholder="Endereço">
       <input type="text" id="telefone" placeholder="Telefone">
       <h3>Itens da Compra</h3>
-      <div id="itensCompra" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+      <div id="itensCompraSelects"></div>
+      <button type="button" id="addDoceSelect">Adicionar Doce</button>
       <button type="submit">Cadastrar Cliente e Compra</button>
     </form>
     <div id="cadastroMsg"></div>
+  </section>
+
+  <section id="cadastroDoce">
+    <h2>Cadastro de Produto (Doce)</h2>
+    <form id="formCadastroDoce">
+      <input type="text" id="nomeDoce" placeholder="Nome do Doce" required>
+      <input type="number" id="precoDoce" placeholder="Preço (R$)" min="0" step="0.01" required>
+      <input type="text" id="saborDoce" placeholder="Sabor" required>
+      <input type="number" id="quantidadeDoce" placeholder="Quantidade" min="1" step="1" required>
+      <button type="submit">Cadastrar Produto</button>
+    </form>
+    <div id="cadastroDoceMsg"></div>
+  </section>
+
+  <section id="buscaDoce">
+    <h2>Buscar Produto (Doce)</h2>
+    <form id="formBuscaDoce">
+      <input type="text" id="buscaNomeDoce" placeholder="Nome do Doce">
+      <button type="submit">Buscar</button>
+    </form>
+    <table id="tblDoces" class="hidden">
+      <thead><tr><th>ID</th><th>Nome</th><th>Preço</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="buscaDoceMsg"></div>
   </section>
 
   <section id="historico">
@@ -68,7 +97,7 @@
     document.querySelectorAll('nav a').forEach(link => {
       link.onclick = () => {
         document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById(link.dataset.target).classList.add('active');
+        document.getElementById(link.getAttribute('data-target')).classList.add('active');
       };
     });
 
@@ -81,22 +110,98 @@
       document.getElementById('cadastro').classList.add('active');
     };
 
-    // Carregar doces para seleção de compra
-    async function carregarDoces() {
+    // --- Cadastro de Produto (Doce) ---
+    document.getElementById('formCadastroDoce').onsubmit = async e => {
+      e.preventDefault();
+      const nome = document.getElementById('nomeDoce').value.trim();
+      const preco = parseFloat(document.getElementById('precoDoce').value);
+      const sabor = document.getElementById('saborDoce').value.trim();
+      const quantidade = parseInt(document.getElementById('quantidadeDoce').value);
+      const dto = { nome, preco, sabor, quantidade };
+      try {
+        const resp = await fetch(apiUrl + '/doces/criar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dto)
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        document.getElementById('cadastroDoceMsg').textContent = 'Produto cadastrado com sucesso!';
+        document.getElementById('formCadastroDoce').reset();
+      } catch (err) {
+        document.getElementById('cadastroDoceMsg').textContent = 'Erro: ' + err.message;
+      }
+    };
+
+    // --- Busca de Produto (Doce) ---
+    document.getElementById('formBuscaDoce').onsubmit = async e => {
+      e.preventDefault();
+      const nomeBusca = document.getElementById('buscaNomeDoce').value.trim().toLowerCase();
+      try {
+        const resp = await fetch(apiUrl + '/doces');
+        const doces = await resp.json();
+        const tbody = document.querySelector('#tblDoces tbody');
+        tbody.innerHTML = '';
+        let encontrados = 0;
+        doces.forEach(d => {
+          if (!nomeBusca || d.nome.toLowerCase().includes(nomeBusca)) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${d.id}</td><td>${d.nome}</td><td>R$ ${parseFloat(d.preco).toFixed(2)}</td>`;
+            tbody.appendChild(tr);
+            encontrados++;
+          }
+        });
+        document.getElementById('tblDoces').classList.toggle('hidden', encontrados === 0);
+        document.getElementById('buscaDoceMsg').textContent = encontrados ? '' : 'Nenhum produto encontrado.';
+      } catch (err) {
+        document.getElementById('buscaDoceMsg').textContent = 'Erro: ' + err.message;
+      }
+    };
+
+    // --- Selects dinâmicos de doces no cadastro de compra ---
+    let listaDoces = [];
+    async function carregarDocesSelect() {
       const resp = await fetch(apiUrl + '/doces');
-      const doces = await resp.json();
-      const div = document.getElementById('itensCompra');
-      div.innerHTML = '';
-      doces.forEach(d => {
-        const linha = document.createElement('div');
-        linha.style.display = 'flex';
-        linha.style.alignItems = 'center';
-        linha.style.gap = '0.5rem';
-        linha.innerHTML = `<span>${d.nome} (${d.sabor}) - R$${d.preco}</span> <input type="number" min="0" value="0" data-id="${d.id}" style="width:60px">`;
-        div.appendChild(linha);
-      });
+      listaDoces = await resp.json();
+      atualizarSelectsDoces();
     }
-    carregarDoces();
+    function criarSelectDoce(idx) {
+      const div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.gap = '0.5rem';
+      const select = document.createElement('select');
+      select.name = 'doceSelect';
+      listaDoces.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = `${d.nome} - R$${parseFloat(d.preco).toFixed(2)}`;
+        select.appendChild(opt);
+      });
+      const inputQtd = document.createElement('input');
+      inputQtd.type = 'number';
+      inputQtd.min = '1';
+      inputQtd.value = '1';
+      inputQtd.style.width = '60px';
+      inputQtd.placeholder = 'Qtd';
+      const btnRemover = document.createElement('button');
+      btnRemover.type = 'button';
+      btnRemover.textContent = 'Remover';
+      btnRemover.onclick = () => {
+        div.remove();
+      };
+      div.appendChild(select);
+      div.appendChild(inputQtd);
+      div.appendChild(btnRemover);
+      return div;
+    }
+    function atualizarSelectsDoces() {
+      const container = document.getElementById('itensCompraSelects');
+      container.innerHTML = '';
+      container.appendChild(criarSelectDoce(0));
+    }
+    document.getElementById('addDoceSelect').onclick = () => {
+      document.getElementById('itensCompraSelects').appendChild(criarSelectDoce(Date.now()));
+    };
+    carregarDocesSelect();
 
     // Cadastro de cliente + compra
     document.getElementById('formCadastro').onsubmit = async e => {
@@ -123,9 +228,13 @@
       }
       const criado = await resp.json();
       // Itens da compra
-      const inputs = document.querySelectorAll('#itensCompra input');
+      const selects = document.querySelectorAll('#itensCompraSelects select');
+      const inputsQtd = document.querySelectorAll('#itensCompraSelects input[type="number"]');
       const itens = [];
-      inputs.forEach(i => { const qtd = parseInt(i.value); if (qtd > 0) itens.push({ produtoId: parseInt(i.dataset.id), quantidade: qtd }); });
+      selects.forEach((select, idx) => {
+        const qtd = parseInt(inputsQtd[idx].value);
+        if (qtd > 0) itens.push({ produtoId: parseInt(select.value), quantidade: qtd });
+      });
       if (itens.length) {
         resp = await fetch(apiUrl + '/compras', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -137,7 +246,7 @@
         document.getElementById('cadastroMsg').textContent = 'Cliente cadastrado (sem compra).';
       }
       e.target.reset();
-      carregarDoces();
+      carregarDocesSelect();
     };
 
     // Preencher select de clientes no histórico
