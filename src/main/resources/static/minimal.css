@@ -5,6 +5,11 @@ body {
   margin: 0;
   padding: 0;
 }
+body.dark {
+  background: #181818 url('chucrute.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #e0e0e0;
+}
 nav {
   background: rgba(34,34,34,0.95);
   color: #fff;
@@ -13,6 +18,10 @@ nav {
   gap: 1rem;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 2px 8px #0002;
+}
+nav.dark, nav.dark a {
+  background: #111 !important;
+  color: #e0c36b !important;
 }
 nav a {
   color: #fff;
@@ -31,7 +40,14 @@ section {
   margin: 2rem auto 0 auto;
   background: rgba(255,255,255,0.92);
   border-radius: 12px;
-  box-shadow: 0 2px 16px #0002;
+  box-shadow: 0 4px 32px #0002;
+  border: 1.5px solid #eee;
+}
+section.dark {
+  background: rgba(30,30,30,0.97) !important;
+  color: #e0e0e0;
+  box-shadow: 0 4px 32px #0008;
+  border: 1.5px solid #444;
 }
 section.active {
   display: block;
@@ -40,6 +56,11 @@ h2 {
   margin-top: 0;
   color: #222;
   letter-spacing: 1px;
+  text-shadow: 1px 2px 8px #fff4;
+}
+h2.dark {
+  color: #e0c36b !important;
+  text-shadow: 1px 2px 8px #000a;
 }
 form {
   display: flex;
@@ -51,10 +72,21 @@ input, button, select {
   font-size: 1rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  box-shadow: 0 2px 8px #0001;
+}
+input.dark, select.dark, button.dark {
+  background: #232323;
+  color: #e0c36b;
+  border: 1.5px solid #e0c36b;
+  box-shadow: 0 2px 8px #0004;
 }
 input:focus, select:focus {
   outline: 2px solid #ffd700;
   border-color: #ffd700;
+}
+input.dark:focus, select.dark:focus {
+  outline: 2px solid #e0c36b;
+  border-color: #e0c36b;
 }
 button {
   background: #ffd700;
@@ -63,9 +95,19 @@ button {
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s;
+  box-shadow: 0 2px 8px #ffd70044;
+}
+button.dark {
+  background: #e0c36b;
+  color: #232323;
+  box-shadow: 0 2px 8px #0004;
 }
 button:hover {
   background: #ffe066;
+}
+button.dark:hover {
+  background: #ffe066;
+  color: #232323;
 }
 table {
   width: 100%;
@@ -74,6 +116,13 @@ table {
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 16px #0001;
+}
+table.dark, th.dark, td.dark {
+  background: #232323 !important;
+  color: #e0c36b !important;
+  border-color: #e0c36b !important;
+  box-shadow: 0 2px 16px #0008;
 }
 th, td {
   border: 1px solid #ccc;

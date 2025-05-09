@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HKCRM2 - Cadastro e Histórico de Compras</title>
+  <link rel="stylesheet" href="minimal.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,15 +13,45 @@
       background: url('chucrute.jpg') no-repeat center center fixed;
       background-size: cover;
     }
+    body.dark {
+      background: #181818 url('chucrute.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #f1f1f1;
+    }
     nav { background: #222; color: #fff; padding: 1rem; display: flex; gap: 1rem; }
+    nav.dark, nav.dark a { background: #111 !important; color: #ffd700 !important; }
     nav a { color: #fff; text-decoration: none; cursor: pointer; }
     section { display: none; padding: 2rem; max-width: 600px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; margin-top: 2rem; }
     section.active { display: block; }
+    section.dark { background: rgba(30,30,30,0.97) !important; color: #f1f1f1; }
     h2 { margin-top: 0; }
+    h2.dark { color: #ffd700 !important; }
     form { display: flex; flex-direction: column; gap: 1rem; }
     input, button, select { padding: 0.5rem; font-size: 1rem; }
+    input.dark, select.dark, button.dark {
+      background: #222;
+      color: #ffd700;
+      border: 1px solid #ffd700;
+    }
+    input.dark:focus, select.dark:focus {
+      outline: 2px solid #ffd700;
+      border-color: #ffd700;
+    }
+    button.dark {
+      background: #ffd700;
+      color: #222;
+    }
+    button.dark:hover {
+      background: #ffe066;
+      color: #222;
+    }
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
     th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    table.dark, th.dark, td.dark {
+      background: #222 !important;
+      color: #ffd700 !important;
+      border-color: #ffd700 !important;
+    }
     .hidden { display: none; }
   </style>
 </head>
@@ -31,10 +62,12 @@
     <a data-target="historico">Histórico de Compras</a>
     <a data-target="cadastroDoce">Cadastro de Produto (Doce)</a>
     <a data-target="buscaDoce">Buscar Produto (Doce)</a>
+    <button id="toggleTheme" style="margin-left:auto;">Modo Escuro</button>
   </nav>
 
   <section id="login" class="active">
     <h2>Login (Fachada)</h2>
+    <img src="sam-jones-sam.gif" alt="skeleton dance" style="width:120px;display:block;margin:1rem auto;filter:drop-shadow(0 0 8px #0008);">
     <form id="formLogin">
       <input type="email" id="loginEmail" placeholder="E-mail" required>
       <input type="password" id="loginSenha" placeholder="Senha" required>
@@ -292,6 +325,21 @@
         tbody.appendChild(tr);
       });
     };
+
+    // Alternância de tema
+    const themeBtn = document.getElementById('toggleTheme');
+    let darkMode = false;
+    function setTheme(dark) {
+      darkMode = dark;
+      document.body.classList.toggle('dark', dark);
+      document.querySelectorAll('nav').forEach(e => e.classList.toggle('dark', dark));
+      document.querySelectorAll('section').forEach(e => e.classList.toggle('dark', dark));
+      document.querySelectorAll('h2').forEach(e => e.classList.toggle('dark', dark));
+      document.querySelectorAll('input,select,button').forEach(e => e.classList.toggle('dark', dark));
+      document.querySelectorAll('table,th,td').forEach(e => e.classList.toggle('dark', dark));
+      themeBtn.textContent = dark ? 'Modo Claro' : 'Modo Escuro';
+    }
+    themeBtn.onclick = () => setTheme(!darkMode);
   </script>
 </body>
 </html>
