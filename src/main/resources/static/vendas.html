@@ -6,7 +6,7 @@
   <title>Histórico de Vendas</title>
   <style>
     body{font-family:sans-serif;margin:2em;background:#fff}
-    input,button{display:block;margin-bottom:1em;padding:0.5em;width:100%;}
+    input,button,select{display:block;margin-bottom:1em;padding:0.5em;width:100%;}
     table{width:100%;border-collapse:collapse;margin-top:1em;}
     th,td{border:1px solid #ccc;padding:0.5em;text-align:left;}
     th{background-color:#eee;}
@@ -15,8 +15,10 @@
 </head>
 <body>
   <h2>Histórico de Vendas</h2>
-  <label>Cliente ID (UUID)
-    <input type="text" id="clienteIdHist" placeholder="Cole o ID do cliente">
+  <label>Cliente
+    <select id="clienteSelect">
+      <option value="">Selecione um cliente</option>
+    </select>
   </label>
   <button id="btnHist">Buscar Histórico</button>
 
@@ -32,13 +34,31 @@
     const API = 'http://localhost:8080';
     const AUTH = 'Basic ' + btoa('funcionario@exemplo.com:senha123');
 
+    async function carregarClientes() {
+      const sel = document.getElementById('clienteSelect');
+      sel.innerHTML = '<option value="">Selecione um cliente</option>';
+      try {
+        const res = await fetch(API + '/usuarios/todos', {
+          headers: { 'Authorization': AUTH }
+        });
+        if (res.ok) {
+          const clientes = await res.json();
+          clientes.forEach(cli => {
+            const opt = document.createElement('option');
+            opt.value = cli.id;
+            opt.textContent = `${cli.nome} (${cli.email})`;
+            sel.append(opt);
+          });
+        }
+      } catch {}
+    }
+
     document.getElementById('btnHist').onclick = async () => {
-      const id = document.getElementById('clienteIdHist').value.trim();
+      const id = document.getElementById('clienteSelect').value;
       document.getElementById('err').textContent='';
       const tb = document.getElementById('tb');
       tb.innerHTML = '';
-
-      if (!id) return alert('Informe o clienteId');
+      if (!id) return alert('Selecione um cliente');
       try {
         let res = await fetch(`${API}/compras?clienteId=${id}`, {
           headers:{ 'Authorization': AUTH }
@@ -62,6 +82,8 @@
         document.getElementById('err').textContent = err.message;
       }
     };
+
+    carregarClientes();
   </script>
 </body>
 </html>
