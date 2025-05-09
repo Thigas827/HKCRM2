@@ -60,13 +60,13 @@
     <a data-target="login">Login</a>
     <a data-target="cadastro">Cadastro Cliente + Compra</a>
     <a data-target="historico">Histórico de Compras</a>
-    <a data-target="cadastroDoce">Cadastro de Produto (Doce)</a>
-    <a data-target="buscaDoce">Buscar Produto (Doce)</a>
+    <a data-target="cadastroProduto">Cadastro de Produto</a>
+    <a data-target="buscaDoce">Buscar Produto</a>
     <button id="toggleTheme" style="margin-left:auto;">Modo Escuro</button>
   </nav>
 
   <section id="login" class="active">
-    <h2>Login (Fachada)</h2>
+    <h2>Login</h2>
     <form id="formLogin">
       <input type="email" id="loginEmail" placeholder="E-mail" required>
       <input type="password" id="loginSenha" placeholder="Senha" required>
@@ -90,20 +90,18 @@
     <div id="cadastroMsg"></div>
   </section>
 
-  <section id="cadastroDoce">
-    <h2>Cadastro de Produto (Doce)</h2>
-    <form id="formCadastroDoce">
-      <input type="text" id="nomeDoce" placeholder="Nome do Doce" required>
-      <input type="number" id="precoDoce" placeholder="Preço (R$)" min="0" step="0.01" required>
-      <input type="text" id="saborDoce" placeholder="Sabor" required>
-      <input type="number" id="quantidadeDoce" placeholder="Quantidade" min="1" step="1" required>
+  <section id="cadastroProduto">
+    <h2>Cadastro de Produto</h2>
+    <form id="formCadastroProduto">
+      <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
+      <input type="number" id="precoProduto" placeholder="Preço (R$)" min="0" step="0.01" required>
       <button type="submit">Cadastrar Produto</button>
     </form>
-    <div id="cadastroDoceMsg"></div>
+    <div id="cadastroProdutoMsg"></div>
   </section>
 
   <section id="buscaDoce">
-    <h2>Buscar Produto (Doce)</h2>
+    <h2>Buscar Produto</h2>
     <form id="formBuscaDoce">
       <input type="text" id="buscaNomeDoce" placeholder="Nome do Doce">
       <button type="submit">Buscar</button>
@@ -147,25 +145,23 @@
       document.getElementById('cadastro').classList.add('active');
     };
 
-    // --- Cadastro de Produto (Doce) ---
-    document.getElementById('formCadastroDoce').onsubmit = async e => {
+    // --- Cadastro de Produto (geral) ---
+    document.getElementById('formCadastroProduto').onsubmit = async e => {
       e.preventDefault();
-      const nome = document.getElementById('nomeDoce').value.trim();
-      const preco = parseFloat(document.getElementById('precoDoce').value);
-      const sabor = document.getElementById('saborDoce').value.trim();
-      const quantidade = parseInt(document.getElementById('quantidadeDoce').value);
-      const dto = { nome, preco, sabor, quantidade };
+      const nome = document.getElementById('nomeProduto').value.trim();
+      const preco = parseFloat(document.getElementById('precoProduto').value);
+      const dto = { nome, preco };
       try {
-        const resp = await fetch(apiUrl + '/doces/criar', {
+        const resp = await fetch(apiUrl + '/produtos/criar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dto)
         });
         if (!resp.ok) throw new Error(await resp.text());
-        document.getElementById('cadastroDoceMsg').textContent = 'Produto cadastrado com sucesso!';
-        document.getElementById('formCadastroDoce').reset();
+        document.getElementById('cadastroProdutoMsg').textContent = 'Produto cadastrado com sucesso!';
+        document.getElementById('formCadastroProduto').reset();
       } catch (err) {
-        document.getElementById('cadastroDoceMsg').textContent = 'Erro: ' + err.message;
+        document.getElementById('cadastroProdutoMsg').textContent = 'Erro: ' + err.message;
       }
     };
 
