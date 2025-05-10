@@ -21,17 +21,18 @@ public class ConfigSeguranca {
             .anyRequest().permitAll()
           ); // Remove .httpBasic(withDefaults())
       return http.build();
-    }
-
-    @Bean
+    }    @Bean
     public WebMvcConfigurer corsConfigurer() {
       return new WebMvcConfigurer() {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
           registry.addMapping("/**")
                   .allowedOrigins("http://localhost:8080")
-                  .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
-                  .allowCredentials(true);
+                  .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                  .allowedHeaders("*")
+                  .exposedHeaders("*")
+                  .allowCredentials(true)
+                  .maxAge(3600);
         }
       };
     }

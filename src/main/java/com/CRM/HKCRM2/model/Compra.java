@@ -2,13 +2,17 @@ package com.CRM.HKCRM2.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 
@@ -29,6 +33,9 @@ public class Compra {
     @Column(name = "valor_total", nullable = false)
     private BigDecimal valorTotal;
 
+    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
+    private List<CompraItem> itens = new ArrayList<>();
+
     public Compra() {
     }
 
@@ -37,7 +44,6 @@ public class Compra {
         this.valorTotal = valorTotal;
         this.dataCompra = LocalDateTime.now();
     }
-
 
     public Integer getId() {
         return id;
@@ -69,6 +75,14 @@ public class Compra {
 
     public void setValorTotal(BigDecimal total) {
         this.valorTotal = total;
+    }
+
+    public List<CompraItem> getItens() {
+        return itens;
+    }
+
+    public void setItens(List<CompraItem> itens) {
+        this.itens = itens;
     }
 
 }

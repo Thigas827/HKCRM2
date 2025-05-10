@@ -53,6 +53,33 @@
       border-color: #ffd700 !important;
     }
     .hidden { display: none; }
+    .compra-card {
+      background-color: #fff;
+      transition: all 0.3s ease;
+    }
+    .compra-card.dark {
+      background-color: #222;
+      border-color: #ffd700 !important;
+      color: #f1f1f1;
+    }
+    .compra-card table {
+      margin-top: 1rem;
+    }
+    .compra-card table th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+    }
+    .compra-card.dark table th {
+      background-color: #333;
+    }
+    .compra-card table td, .compra-card table th {
+      padding: 0.5rem;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    .compra-card.dark table td, .compra-card.dark table th {
+      border-color: #ffd700;
+    }
   </style>
 </head>
 <body>
@@ -84,7 +111,7 @@
       <input type="text" id="telefone" placeholder="Telefone">
       <h3>Itens da Compra</h3>
       <div id="itensCompraSelects"></div>
-      <button type="button" id="addDoceSelect">Adicionar Doce</button>
+      <button type="button" id="addDoceSelect">Adicionar Produto</button>
       <button type="submit">Cadastrar Cliente e Compra</button>
     </form>
     <div id="cadastroMsg"></div>
@@ -103,14 +130,14 @@
   <section id="buscaDoce">
     <h2>Buscar Produto</h2>
     <form id="formBuscaDoce">
-      <input type="text" id="buscaNomeDoce" placeholder="Nome do Doce">
+      <input type="text" id="buscaNomeProduto" placeholder="Nome do Produto">
       <button type="submit">Buscar</button>
     </form>
-    <table id="tblDoces" class="hidden">
+    <table id="tblProdutos" class="hidden">
       <thead><tr><th>ID</th><th>Nome</th><th>Preço</th></tr></thead>
       <tbody></tbody>
     </table>
-    <div id="buscaDoceMsg"></div>
+    <div id="buscaProdutoMsg"></div>
   </section>
 
   <section id="historico">
@@ -119,20 +146,19 @@
       <select id="clienteSelect" required><option value="">Selecione o cliente</option></select>
       <button type="submit">Buscar Compras</button>
     </form>
-    <table id="tblHistorico" class="hidden">
-      <thead><tr><th>ID</th><th>Data</th><th>Valor Total</th></tr></thead>
-      <tbody></tbody>
-    </table>
+    <div id="historicoCompras"></div>
     <div id="historicoMsg"></div>
   </section>
 
   <script>
-    const apiUrl = 'http://localhost:8080';
+    // Configuração da API
+    const apiUrl = '/doces'; // Removendo o prefixo /api pois não está configurado no backend
+
     // Navegação
     document.querySelectorAll('nav a').forEach(link => {
       link.onclick = () => {
         document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById(link.getAttribute('data-target')).classList.add('active');
+        document.getElementById(link.dataset.target).classList.add('active');
       };
     });
 
@@ -152,89 +178,119 @@
       const preco = parseFloat(document.getElementById('precoProduto').value);
       const dto = { nome, preco };
       try {
-        const resp = await fetch(apiUrl + '/produtos/criar', {
+        const resp = await fetch('/produtos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dto)
         });
-        if (!resp.ok) throw new Error(await resp.text());
+        if (!resp.ok) {
+          const error = await resp.text();
+          throw new Error(error);
+        }
         document.getElementById('cadastroProdutoMsg').textContent = 'Produto cadastrado com sucesso!';
         document.getElementById('formCadastroProduto').reset();
       } catch (err) {
-        document.getElementById('cadastroProdutoMsg').textContent = 'Erro: ' + err.message;
+        console.error('Erro:', err);
+        document.getElementById('cadastroProdutoMsg').textContent = 'Erro ao cadastrar produto. Por favor, tente novamente.';
       }
     };
 
-    // --- Busca de Produto (Doce) ---
+    // --- Busca de Produtos ---
     document.getElementById('formBuscaDoce').onsubmit = async e => {
       e.preventDefault();
-      const nomeBusca = document.getElementById('buscaNomeDoce').value.trim().toLowerCase();
+      const nomeBusca = document.getElementById('buscaNomeProduto').value.trim().toLowerCase();
       try {
-        const resp = await fetch(apiUrl + '/doces');
-        const doces = await resp.json();
-        const tbody = document.querySelector('#tblDoces tbody');
+        const resp = await fetch('/produtos');
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        const produtos = await resp.json();
+        const tbody = document.querySelector('#tblProdutos tbody');
         tbody.innerHTML = '';
         let encontrados = 0;
-        doces.forEach(d => {
-          if (!nomeBusca || d.nome.toLowerCase().includes(nomeBusca)) {
+        produtos.forEach(p => {
+          if (!nomeBusca || p.nome.toLowerCase().includes(nomeBusca)) {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${d.id}</td><td>${d.nome}</td><td>R$ ${parseFloat(d.preco).toFixed(2)}</td>`;
+            tr.innerHTML = `<td>${p.id}</td><td>${p.nome}</td><td>R$ ${parseFloat(p.preco).toFixed(2)}</td>`;
             tbody.appendChild(tr);
             encontrados++;
           }
         });
-        document.getElementById('tblDoces').classList.toggle('hidden', encontrados === 0);
-        document.getElementById('buscaDoceMsg').textContent = encontrados ? '' : 'Nenhum produto encontrado.';
+        document.getElementById('tblProdutos').classList.toggle('hidden', encontrados === 0);
+        document.getElementById('buscaProdutoMsg').textContent = encontrados ? '' : 'Nenhum produto encontrado.';
       } catch (err) {
-        document.getElementById('buscaDoceMsg').textContent = 'Erro: ' + err.message;
+        console.error('Erro:', err);
+        document.getElementById('buscaProdutoMsg').textContent = 'Erro ao buscar produtos. Por favor, tente novamente.';
       }
     };
 
     // --- Selects dinâmicos de doces no cadastro de compra ---
-    let listaDoces = [];
-    async function carregarDocesSelect() {
-      const resp = await fetch(apiUrl + '/doces');
-      listaDoces = await resp.json();
-      atualizarSelectsDoces();
+    let listaProdutos = [];
+    async function carregarProdutosSelect() {
+      try {
+        const resp = await fetch('/produtos');
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        const data = await resp.json();
+        listaProdutos = Array.isArray(data) ? data : [];
+        atualizarSelectsProdutos();
+      } catch (err) {
+        console.error('Erro ao carregar produtos:', err);
+        document.getElementById('cadastroMsg').textContent = 'Erro ao carregar lista de produtos. Por favor, tente novamente mais tarde.';
+        listaProdutos = [];
+      }
     }
-    function criarSelectDoce(idx) {
+    function criarSelectProduto(idx) {
       const div = document.createElement('div');
       div.style.display = 'flex';
       div.style.gap = '0.5rem';
       const select = document.createElement('select');
-      select.name = 'doceSelect';
-      listaDoces.forEach(d => {
+      select.name = 'produtoSelect';
+      
+      if (listaProdutos.length === 0) {
         const opt = document.createElement('option');
-        opt.value = d.id;
-        opt.textContent = `${d.nome} - R$${parseFloat(d.preco).toFixed(2)}`;
+        opt.value = '';
+        opt.textContent = 'Nenhum produto disponível';
         select.appendChild(opt);
-      });
+        select.disabled = true;
+      } else {
+        listaProdutos.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.nome} - R$${parseFloat(p.preco).toFixed(2)}`;
+          select.appendChild(opt);
+        });
+      }
+
       const inputQtd = document.createElement('input');
       inputQtd.type = 'number';
       inputQtd.min = '1';
       inputQtd.value = '1';
       inputQtd.style.width = '60px';
       inputQtd.placeholder = 'Qtd';
+      
       const btnRemover = document.createElement('button');
       btnRemover.type = 'button';
       btnRemover.textContent = 'Remover';
       btnRemover.onclick = () => {
         div.remove();
       };
+      
       div.appendChild(select);
       div.appendChild(inputQtd);
       div.appendChild(btnRemover);
       return div;
     }
-    function atualizarSelectsDoces() {
+    function atualizarSelectsProdutos() {
       const container = document.getElementById('itensCompraSelects');
       container.innerHTML = '';
-      container.appendChild(criarSelectDoce(0));
+      container.appendChild(criarSelectProduto(0));
     }
     document.getElementById('addDoceSelect').onclick = () => {
-      document.getElementById('itensCompraSelects').appendChild(criarSelectDoce(Date.now()));
+      document.getElementById('itensCompraSelects').appendChild(criarSelectProduto(Date.now()));
     };
-    carregarDocesSelect();
+    carregarProdutosSelect();
 
     // Cadastro de cliente + compra
     document.getElementById('formCadastro').onsubmit = async e => {
@@ -247,7 +303,7 @@
         senha: '123456' // senha padrão para evitar erro no backend
       };
       // Cria cliente
-      let resp = await fetch(apiUrl + '/usuarios/criar', {
+      let resp = await fetch('/usuarios/criar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cliente)
       });
       if (!resp.ok) {
@@ -269,7 +325,7 @@
         if (qtd > 0) itens.push({ produtoId: parseInt(select.value), quantidade: qtd });
       });
       if (itens.length) {
-        resp = await fetch(apiUrl + '/compras', {
+        resp = await fetch('/compras', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ clienteId: criado.id, itens })
         });
@@ -283,18 +339,47 @@
     };
 
     // Preencher select de clientes no histórico
-    async function preencherClientesHistorico() {
-      const resp = await fetch(apiUrl + '/usuarios/todos');
-      const clientes = await resp.json();
-      const select = document.getElementById('clienteSelect');
-      select.innerHTML = '<option value="">Selecione o cliente</option>';
-      clientes.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = `${c.nome} (${c.email})`;
-        select.appendChild(opt);
-      });
+    async function carregarClientes() {
+      try {
+        const resp = await fetch('/usuarios/todos');
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        const data = await resp.json();
+        return Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.error('Erro ao carregar clientes:', err);
+        document.getElementById('historicoMsg').textContent = 'Erro ao carregar lista de clientes. Por favor, tente novamente mais tarde.';
+        return [];
+      }
     }
+
+    async function preencherClientesHistorico() {
+      try {
+        const clientes = await carregarClientes();
+        const select = document.getElementById('clienteSelect');
+        select.innerHTML = '<option value="">Selecione o cliente</option>';
+        select.disabled = false;
+        
+        if (clientes && clientes.length > 0) {
+          clientes.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = `${c.nome} (${c.email})`;
+            select.appendChild(opt);
+          });
+        } else {
+          select.innerHTML = '<option value="">Nenhum cliente encontrado</option>';
+          select.disabled = true;
+        }
+      } catch (err) {
+        console.error('Erro ao preencher select de clientes:', err);
+        const select = document.getElementById('clienteSelect');
+        select.innerHTML = '<option value="">Erro ao carregar clientes</option>';
+        select.disabled = true;
+      }
+    }
+
     // Carregar clientes ao abrir aba histórico
     document.querySelector('a[data-target="historico"]').addEventListener('click', preencherClientesHistorico);
 
@@ -303,22 +388,75 @@
       e.preventDefault();
       const id = document.getElementById('clienteSelect').value;
       if (!id) return;
-      const resp = await fetch(apiUrl + `/compras?clienteId=${id}`);
-      const compras = await resp.json();
-      const tbody = document.querySelector('#tblHistorico tbody');
-      tbody.innerHTML = '';
-      if (!compras.length) {
-        document.getElementById('tblHistorico').classList.add('hidden');
-        document.getElementById('historicoMsg').textContent = 'Nenhuma compra encontrada.';
-        return;
+      
+      try {
+        const resp = await fetch(`/compras/detalhes?clienteId=${id}`);
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        const compras = await resp.json();
+        const container = document.getElementById('historicoCompras');
+        container.innerHTML = '';
+        
+        if (!compras.length) {
+          document.getElementById('historicoMsg').textContent = 'Nenhuma compra encontrada.';
+          return;
+        }
+        
+        document.getElementById('historicoMsg').textContent = '';
+        
+        compras.forEach(compra => {
+          const compraDiv = document.createElement('div');
+          compraDiv.className = 'compra-card';
+          compraDiv.style.marginBottom = '2rem';
+          compraDiv.style.padding = '1rem';
+          compraDiv.style.border = '1px solid #ccc';
+          compraDiv.style.borderRadius = '8px';
+          
+          const header = document.createElement('div');
+          header.style.marginBottom = '1rem';
+          header.innerHTML = `
+            <strong>Compra #${compra.id}</strong><br>
+            Data: ${new Date(compra.dataCompra).toLocaleString()}<br>
+            <strong>Valor Total: R$ ${compra.valorTotal.toFixed(2)}</strong>
+          `;
+          
+          const table = document.createElement('table');
+          table.style.width = '100%';
+          table.style.borderCollapse = 'collapse';
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço Unit.</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${compra.itens.map(item => `
+                <tr>
+                  <td>${item.nomeProduto}</td>
+                  <td>${item.quantidade}</td>
+                  <td>R$ ${item.precoUnitario.toFixed(2)}</td>
+                  <td>R$ ${item.subtotal.toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          `;
+          
+          compraDiv.appendChild(header);
+          compraDiv.appendChild(table);
+          container.appendChild(compraDiv);
+          
+          if (darkMode) {
+            compraDiv.classList.add('dark');
+          }
+        });
+      } catch (err) {
+        console.error('Erro:', err);
+        document.getElementById('historicoMsg').textContent = 'Erro ao carregar o histórico de compras. Por favor, tente novamente.';
       }
-      document.getElementById('tblHistorico').classList.remove('hidden');
-      document.getElementById('historicoMsg').textContent = '';
-      compras.forEach(c => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${c.id}</td><td>${new Date(c.dataCompra).toLocaleString()}</td><td>${c.valorTotal.toFixed(2)}</td>`;
-        tbody.appendChild(tr);
-      });
     };
 
     // Alternância de tema
@@ -332,6 +470,7 @@
       document.querySelectorAll('h2').forEach(e => e.classList.toggle('dark', dark));
       document.querySelectorAll('input,select,button').forEach(e => e.classList.toggle('dark', dark));
       document.querySelectorAll('table,th,td').forEach(e => e.classList.toggle('dark', dark));
+      document.querySelectorAll('.compra-card').forEach(e => e.classList.toggle('dark', dark));
       themeBtn.textContent = dark ? 'Modo Claro' : 'Modo Escuro';
     }
     themeBtn.onclick = () => setTheme(!darkMode);

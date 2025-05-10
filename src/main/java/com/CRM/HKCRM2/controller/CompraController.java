@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.CRM.HKCRM2.dtos.CompraDtos;
+import com.CRM.HKCRM2.dtos.CompraDetalhesDto;
 import com.CRM.HKCRM2.model.Compra;
 import com.CRM.HKCRM2.Service.CompraService;
 
@@ -32,5 +33,20 @@ public class CompraController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/detalhes/{id}")
+    public ResponseEntity<CompraDetalhesDto> buscarDetalhesCompra(@PathVariable Integer id) {
+        CompraDetalhesDto detalhes = compraService.buscarDetalhesCompra(id);
+        return ResponseEntity.ok(detalhes);
+    }
+
+    @GetMapping("/detalhes")
+    public ResponseEntity<List<CompraDetalhesDto>> listarDetalhesCompras(@RequestParam UUID clienteId) {
+        List<CompraDetalhesDto> detalhes = compraService.listarDetalhesComprasPorCliente(clienteId);
+        if (detalhes.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(detalhes);
     }
 }

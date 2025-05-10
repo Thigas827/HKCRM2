@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.CRM.HKCRM2.dtos.CompraDtos;
 import com.CRM.HKCRM2.dtos.ItemDtos;
+import com.CRM.HKCRM2.dtos.CompraDetalhesDto;
+import com.CRM.HKCRM2.dtos.ItemCompraDetalhesDto;
 import com.CRM.HKCRM2.model.Compra;
 import com.CRM.HKCRM2.model.CompraItem;
 import com.CRM.HKCRM2.model.Produto;
@@ -66,7 +68,53 @@ public class CompraService {
         compra.setValorTotal(total);
         return compraRepo.save(compra);
     }
+
     public List<Compra> listarPorCliente(UUID clienteId) {
         return compraRepo.findByClienteIdOrderByDataCompraDesc(clienteId);
+    }
+
+    public CompraDetalhesDto buscarDetalhesCompra(Integer compraId) {
+        Compra compra = compraRepo.findById(compraId)
+            .orElseThrow(() -> new EntityNotFoundException("Compra não encontrada"));
+
+        List<ItemCompraDetalhesDto> itensDetalhes = compra.getItens().stream()
+            .map(item -> new ItemCompraDetalhesDto(
+                item.getProdutoNome(),
+                item.getQuantidade(),
+                item.getPrecoUnit(),
+                item.getPrecoUnit().multiply(BigDecimal.valueOf(item.getQuantidade()))
+            ))
+            .toList();
+
+        return new CompraDetalhesDto(
+            compra.getId(),
+            compra.getDataCompra(),
+            compra.getValorTotal(),
+            itensDetalhes
+        );
+    }
+
+    public List<CompraDetalhesDto> listarDetalhesComprasPorCliente(UUID clienteId) {
+        List<Compra> compras = compraRepo.findByClienteIdOrderByDataCompraDesc(clienteId);
+        
+        return compras.stream()
+            .map(compra -> {
+                List<ItemCompraDetalhesDto> itensDetalhes = compra.getItens().stream()
+                    .map(item -> new ItemCompraDetalhesDto(
+                        item.getProdutoNome(),
+                        item.getQuantidade(),
+                        item.getPrecoUnit(),
+                        item.getPrecoUnit().multiply(BigDecimal.valueOf(item.getQuantidade()))
+                    ))
+                    .toList();
+
+                return new CompraDetalhesDto(
+                    compra.getId(),
+                    compra.getDataCompra(),
+                    compra.getValorTotal(),
+                    itensDetalhes
+                );
+            })
+            .toList();
     }
 }

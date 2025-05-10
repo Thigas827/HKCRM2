@@ -3,9 +3,9 @@ package com.CRM.HKCRM2.model;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 
-@Entity(name = "produto") // Define a classe como uma entidade JPA
-@Inheritance(strategy = InheritanceType.JOINED) // Define a estratégia de herança para a entidade
-public abstract class Produto {
+@Entity(name = "produto")
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Produto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
