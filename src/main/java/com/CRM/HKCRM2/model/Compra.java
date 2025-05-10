@@ -16,6 +16,23 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 
+/**
+ * Entidade que representa uma compra/venda no sistema.
+ * 
+ * Esta classe mantém as informações principais de uma transação:
+ * - ID único da compra
+ * - Cliente que realizou a compra
+ * - Data e hora da compra
+ * - Valor total
+ * - Lista de itens comprados
+ * 
+ * Relacionamentos:
+ * - ManyToOne com Usuario (cliente)
+ * - OneToMany com CompraItem (itens da compra)
+ * 
+ * O cascade ALL em itens garante que ao salvar/excluir uma compra,
+ * seus itens também sejam salvos/excluídos automaticamente.
+ */
 @Entity
 @Table(name = "compra")
 public class Compra {

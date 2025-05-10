@@ -8,6 +8,29 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
 
+/**
+ * Entidade que representa um usuário/cliente no sistema.
+ * 
+ * Características principais:
+ * - Usa UUID como identificador único
+ * - Armazena informações básicas do cliente (nome, email, etc.)
+ * - Mantém controle de papéis/roles para autorização
+ * - Registra data de criação automaticamente
+ * 
+ * Campos importantes:
+ * - id: UUID gerado automaticamente
+ * - nome: nome do usuário/cliente
+ * - email: email único para identificação
+ * - senha: senha criptografada
+ * - endereco: endereço do cliente
+ * - telefone: telefone para contato
+ * - roles: conjunto de papéis/permissões do usuário
+ * 
+ * Segurança:
+ * - Email deve ser único no sistema
+ * - Senha é armazenada de forma criptografada
+ * - Roles permitem controle de acesso granular
+ */
 @Entity(name = "usuario")
 public class UsuarioMod {
     @Id

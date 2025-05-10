@@ -23,6 +23,18 @@ import com.CRM.HKCRM2.repositories.UIUsuarioRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
+/**
+ * Serviço responsável por toda a lógica de negócio relacionada a compras/vendas.
+ * 
+ * Este serviço gerencia:
+ * - Registro de novas compras
+ * - Cálculo de valores totais
+ * - Gestão dos itens de compra
+ * - Consulta de histórico de compras
+ * 
+ * O serviço utiliza transações para garantir a consistência dos dados,
+ * especialmente importante ao registrar uma compra com múltiplos itens.
+ */
 @Service
 public class CompraService {
 

@@ -32,12 +32,22 @@ import com.CRM.HKCRM2.repositories.UIUsuarioRepository;
 @Service
 public class UsuarioService {
 
+    /**
+     * Repositório para operações com usuários no banco de dados
+     */
     @Autowired
     private UIUsuarioRepository usuarioRepository;
 
+    /**
+     * Repositório para operações com roles/papéis no banco de dados
+     */
     @Autowired
     private RoleRepository roleRepository;
 
+    /**
+     * Serviço de criptografia de senhas
+     * Usado para garantir que as senhas sejam armazenadas de forma segura
+     */
     @Autowired
     private PasswordEncoder passwordEncoder;
 

@@ -13,6 +13,19 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
+/**
+ * Controlador REST para gerenciamento de produtos.
+ * 
+ * Endpoints disponíveis:
+ * - GET /produtos: Lista todos os produtos cadastrados
+ * - POST /produtos: Cadastra um novo produto
+ * 
+ * Esta classe faz parte da API REST e é responsável por:
+ * - Receber requisições HTTP relacionadas a produtos
+ * - Validar dados de entrada
+ * - Encaminhar as operações para o serviço apropriado
+ * - Retornar respostas formatadas adequadamente
+ */
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {

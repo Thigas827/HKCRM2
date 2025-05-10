@@ -1,9 +1,12 @@
---Create_produto(Pai/Base)
-CREATE TABLE produto (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    preco DECIMAL(10, 2) NOT NULL
+-- Script de criação das tabelas do sistema HKCRM2
+-- Este script define a estrutura básica do banco de dados
 
+-- Tabela de produtos (tabela base/pai)
+-- Armazena informações básicas comuns a todos os tipos de produtos
+CREATE TABLE produto (
+    id SERIAL PRIMARY KEY,                    -- Identificador único autoincremental
+    nome VARCHAR(255) NOT NULL,               -- Nome do produto
+    preco DECIMAL(10, 2) NOT NULL             -- Preço com 2 casas decimais
 );
 
 --Create_doce_(Filha)

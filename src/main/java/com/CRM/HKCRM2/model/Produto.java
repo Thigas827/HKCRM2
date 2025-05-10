@@ -3,6 +3,18 @@ package com.CRM.HKCRM2.model;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 
+/**
+ * Classe que representa um produto no sistema.
+ * 
+ * Esta é a classe base para todos os produtos do sistema. Utiliza herança
+ * com estratégia JOINED, permitindo que tipos específicos de produtos (como Doce)
+ * possam estender esta classe e adicionar seus próprios atributos.
+ * 
+ * Atributos básicos:
+ * - id: identificador único do produto
+ * - nome: nome do produto
+ * - preco: preço unitário do produto
+ */
 @Entity(name = "produto")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Produto {

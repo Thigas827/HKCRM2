@@ -9,6 +9,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+/**
+ * Configuração de segurança da aplicação.
+ * 
+ * Esta classe configura:
+ * - CORS (Cross-Origin Resource Sharing) para permitir chamadas do frontend
+ * - CSRF desabilitado para simplificar o MVP
+ * - Acesso público a todos os endpoints nesta versão inicial
+ * 
+ * Nota: Em um ambiente de produção, esta configuração deve ser revisada
+ * para implementar autenticação e autorização adequadas.
+ */
 @Configuration
 @CrossOrigin(origins = "*")
 public class ConfigSeguranca {
