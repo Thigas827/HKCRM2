@@ -1,19 +1,67 @@
-// Utilitário para tratamento de erros
-const errorHandler = {
-    async handleResponse(response, successMessage) {
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erro na operação');
+// Utilitário para tratamento de erros e UI
+const uiManager = {
+    showLoading(target, buttonId = null) {
+        if (buttonId) {
+            // Se um botão específico foi informado, apenas adiciona loading nele
+            const button = target.querySelector(`#${buttonId}`);
+            if (button) {
+                button.classList.add('loading');
+                button.disabled = true;
+            }
+        } else {
+            // Comportamento padrão: loading no container inteiro
+            target.classList.add('loading');
         }
-        return response.json().catch(() => ({ message: successMessage }));
     },
 
-    showError(target, error) {
-        formManager.showFeedback(
-            target, 
-            'error', 
-            error.message || 'Ocorreu um erro. Tente novamente.'
-        );
+    hideLoading(target, buttonId = null) {
+        if (buttonId) {
+            const button = target.querySelector(`#${buttonId}`);
+            if (button) {
+                button.classList.remove('loading');
+                button.disabled = false;
+            }
+        } else {
+            target.classList.remove('loading');
+        }
+    },
+
+    showFeedback(target, type, message, duration = 3000) {
+        const feedback = document.createElement('div');
+        feedback.className = `feedback-message ${type}`;
+        feedback.textContent = message;
+        
+        // Remove feedback anterior se existir
+        target.querySelectorAll('.feedback-message').forEach(el => el.remove());
+        
+        // Adiciona novo feedback
+        target.appendChild(feedback);
+        
+        // Anima entrada
+        requestAnimationFrame(() => feedback.classList.add('show'));
+        
+        // Remove após o tempo especificado
+        setTimeout(() => {
+            feedback.classList.remove('show');
+            setTimeout(() => feedback.remove(), 300);
+        }, duration);
+    },
+
+    refreshList(containerId, items, template) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.innerHTML = '';
+        
+        if (items.length === 0) {
+            this.showFeedback(container, 'info', 'Nenhum item encontrado');
+            return;
+        }
+
+        items.forEach(item => {
+            const element = template(item);
+            container.appendChild(element);
+        });
     }
 };
 
@@ -58,20 +106,52 @@ const doceManager = {
         const formBusca = document.getElementById('formBuscaDoce');
         const formCadastro = document.getElementById('formCadastroDoce');
 
-        formBusca.addEventListener('submit', (e) => this.buscarDoces(e));
-        formCadastro.addEventListener('submit', (e) => this.cadastrarDoce(e));
+        if (formBusca) {
+            formBusca.addEventListener('submit', (e) => this.buscarDoces(e));
+        }
+        if (formCadastro) {
+            formCadastro.addEventListener('submit', (e) => this.cadastrarDoce(e));
+        }
+    },
+
+    async carregarDoces() {
+        try {
+            const response = await fetch('/doces/listar');
+            if (!response.ok) throw new Error('Erro ao carregar doces');
+            
+            const doces = await response.json();
+            this.exibirDoces(doces);
+        } catch (error) {
+            console.error('Erro ao carregar doces:', error);
+            const container = document.getElementById('listaDoces');
+            if (container) {
+                uiManager.showFeedback(container, 'error', 'Erro ao carregar doces. Tente novamente.');
+            }
+        }
     },
 
     async buscarDoces(e) {
         e.preventDefault();
+        const form = e.target;
         const nome = document.getElementById('buscaDoceNome').value;
+        
         try {
+            uiManager.showLoading(form, 'btnBuscarDoce');
+            
             const response = await fetch(`/doces?nome=${encodeURIComponent(nome)}`);
+            if (!response.ok) throw new Error('Erro ao buscar doces');
+            
             const doces = await response.json();
             this.exibirDoces(doces);
+            
+            if (doces.length > 0) {
+                uiManager.showFeedback(form, 'success', 'Produtos encontrados com sucesso!');
+            }
         } catch (error) {
             console.error('Erro ao buscar doces:', error);
-            formManager.showFeedback(e.target, 'error', 'Erro ao buscar doces. Tente novamente.');
+            uiManager.showFeedback(form, 'error', 'Erro ao buscar doces. Tente novamente.');
+        } finally {
+            uiManager.hideLoading(form, 'btnBuscarDoce');
         }
     },
 
@@ -87,7 +167,7 @@ const doceManager = {
 
         try {
             formValidator.validateDoce(doce);
-            form.classList.add('loading');
+            uiManager.showLoading(form, 'btnCadastrarDoce');
             
             const response = await fetch('/doces/criar', {
                 method: 'POST',
@@ -97,22 +177,22 @@ const doceManager = {
                 body: JSON.stringify(doce)
             });
 
-            await errorHandler.handleResponse(response, 'Doce cadastrado com sucesso!');
-            formManager.showFeedback(form, 'success', 'Doce cadastrado com sucesso!');
+            if (!response.ok) {
+                throw new Error(await response.text() || 'Erro ao cadastrar doce');
+            }
+
+            uiManager.showFeedback(form, 'success', 'Doce cadastrado com sucesso!');
             form.reset();
-            this.carregarDoces();
+            await this.carregarDoces();
         } catch (error) {
-            errorHandler.showError(form, error);
+            uiManager.showFeedback(form, 'error', error.message || 'Erro ao cadastrar doce. Tente novamente.');
         } finally {
-            form.classList.remove('loading');
+            uiManager.hideLoading(form, 'btnCadastrarDoce');
         }
     },
 
     exibirDoces(doces) {
-        const lista = document.getElementById('listaDoces');
-        lista.innerHTML = '';
-
-        doces.forEach(doce => {
+        uiManager.refreshList('listaDoces', doces, (doce) => {
             const card = document.createElement('div');
             card.className = 'produto-card';
             card.innerHTML = `
@@ -121,7 +201,7 @@ const doceManager = {
                 <p>Preço: R$ ${doce.preco.toFixed(2)}</p>
                 <p>Quantidade: ${doce.quantidade}</p>
             `;
-            lista.appendChild(card);
+            return card;
         });
     }
 };
@@ -135,7 +215,25 @@ const planoManager = {
 
     setupFormsPlanos() {
         const formCadastro = document.getElementById('formCadastroPlano');
-        formCadastro.addEventListener('submit', (e) => this.cadastrarPlano(e));
+        if (formCadastro) {
+            formCadastro.addEventListener('submit', (e) => this.cadastrarPlano(e));
+        }
+    },
+
+    async carregarPlanos() {
+        try {
+            const response = await fetch('/planos/listar');
+            if (!response.ok) throw new Error('Erro ao carregar planos');
+            
+            const planos = await response.json();
+            this.exibirPlanos(planos);
+        } catch (error) {
+            console.error('Erro ao carregar planos:', error);
+            const container = document.getElementById('listaPlanos');
+            if (container) {
+                uiManager.showFeedback(container, 'error', 'Erro ao carregar planos. Tente novamente.');
+            }
+        }
     },
 
     async cadastrarPlano(e) {
@@ -149,7 +247,7 @@ const planoManager = {
 
         try {
             formValidator.validatePlano(plano);
-            form.classList.add('loading');
+            uiManager.showLoading(form, 'btnCadastrarPlano');
             
             const response = await fetch('/planos/criar', {
                 method: 'POST',
@@ -159,55 +257,50 @@ const planoManager = {
                 body: JSON.stringify(plano)
             });
 
-            await errorHandler.handleResponse(response, 'Plano cadastrado com sucesso!');
-            formManager.showFeedback(form, 'success', 'Plano cadastrado com sucesso!');
-            form.reset();
-            this.carregarPlanos();
-        } catch (error) {
-            errorHandler.showError(form, error);
-        } finally {
-            form.classList.remove('loading');
-        }
-    },
+            if (!response.ok) {
+                throw new Error(await response.text() || 'Erro ao cadastrar plano');
+            }
 
-    async carregarPlanos() {
-        try {
-            const response = await fetch('/planos/listar');
-            const planos = await response.json();
-            this.exibirPlanos(planos);
+            uiManager.showFeedback(form, 'success', 'Plano cadastrado com sucesso!');
+            form.reset();
+            await this.carregarPlanos();
         } catch (error) {
-            console.error('Erro ao carregar planos:', error);
-            formManager.showFeedback(document.getElementById('planos-content'), 'error', 'Erro ao carregar planos. Tente novamente.');
+            uiManager.showFeedback(form, 'error', error.message || 'Erro ao cadastrar plano. Tente novamente.');
+        } finally {
+            uiManager.hideLoading(form, 'btnCadastrarPlano');
         }
     },
 
     exibirPlanos(planos) {
-        const lista = document.getElementById('listaPlanos');
-        lista.innerHTML = '';
-
-        planos.forEach(plano => {
+        uiManager.refreshList('listaPlanos', planos, (plano) => {
             const card = document.createElement('div');
             card.className = 'produto-card plano-card';
             card.innerHTML = `
                 <h3>${plano.nome}</h3>
                 <p>Tipo: ${plano.tipo}</p>
                 <p>Valor Mensal: R$ ${plano.valorMensal.toFixed(2)}</p>
-                <button class="btn-contratar" data-id="${plano.id}">Contratar</button>
+                <button class="btn-contratar" id="btnContratar${plano.id}" data-id="${plano.id}">
+                    Contratar
+                </button>
             `;
-            lista.appendChild(card);
-        });
-
-        // Adiciona listeners para botões de contratar
-        lista.querySelectorAll('.btn-contratar').forEach(btn => {
-            btn.addEventListener('click', () => this.contratarPlano(btn.dataset.id));
+            
+            const btnContratar = card.querySelector('.btn-contratar');
+            btnContratar.addEventListener('click', () => this.contratarPlano(plano.id));
+            
+            return card;
         });
     },
 
     async contratarPlano(planoId) {
+        const btnContratar = document.getElementById(`btnContratar${planoId}`);
+        if (!btnContratar) return;
+
         try {
+            uiManager.showLoading(btnContratar.parentElement, `btnContratar${planoId}`);
+            
             // Por enquanto vamos usar um ID fixo para teste
             // Em produção isso viria do usuário logado
-            const clienteId = "550e8400-e29b-41d4-a716-446655440000"; // UUID exemplo
+            const clienteId = sessionStorage.getItem('userId') || "550e8400-e29b-41d4-a716-446655440000";
             
             const response = await fetch(`/planos/${planoId}/contratar?clienteId=${clienteId}`, {
                 method: 'POST',
@@ -216,22 +309,68 @@ const planoManager = {
                 }
             });
 
-            if (response.ok) {
-                formManager.showFeedback(
-                    document.getElementById('planos-content'),
-                    'success',
-                    'Plano contratado com sucesso!'
-                );
-            } else {
-                const error = await response.text();
-                throw new Error(error || 'Erro ao contratar plano');
+            if (!response.ok) {
+                throw new Error(await response.text() || 'Erro ao contratar plano');
             }
+
+            uiManager.showFeedback(
+                btnContratar.parentElement,
+                'success',
+                'Plano contratado com sucesso!'
+            );
         } catch (error) {
-            formManager.showFeedback(
-                document.getElementById('planos-content'),
+            uiManager.showFeedback(
+                btnContratar.parentElement,
                 'error',
                 error.message || 'Erro ao contratar plano. Tente novamente.'
             );
+        } finally {
+            uiManager.hideLoading(btnContratar.parentElement, `btnContratar${planoId}`);
+        }
+    }
+};
+
+// Gerenciador de abas
+const tabManager = {
+    init() {
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tabId = e.target.dataset.tab;
+                this.switchTab(tabId);
+            });
+        });
+
+        // Ativa primeira aba por padrão em cada seção
+        document.querySelectorAll('section').forEach(section => {
+            const firstTab = section.querySelector('.tab-button');
+            if (firstTab) {
+                this.switchTab(firstTab.dataset.tab);
+            }
+        });
+    },
+
+    switchTab(tabId) {
+        if (!tabId) return;
+
+        const tab = document.querySelector(`[data-tab="${tabId}"]`);
+        if (!tab) return;
+
+        const section = tab.closest('section');
+        if (!section) return;
+
+        // Remove active de todas as abas na seção
+        section.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        section.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Ativa aba selecionada
+        tab.classList.add('active');
+        const content = document.getElementById(tabId);
+        if (content) {
+            content.classList.add('active');
         }
     }
 };
@@ -240,4 +379,5 @@ const planoManager = {
 document.addEventListener('DOMContentLoaded', () => {
     doceManager.init();
     planoManager.init();
+    tabManager.init();
 });

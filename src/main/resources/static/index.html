@@ -123,26 +123,60 @@
   </section>
 
   <section id="cadastroProduto">
-    <h2>Cadastro de Produto</h2>
-    <form id="formCadastroProduto">
-      <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
-      <input type="number" id="precoProduto" placeholder="Preço (R$)" min="0" step="0.01" required>
-      <button type="submit">Cadastrar Produto</button>
-    </form>
-    <div id="cadastroProdutoMsg"></div>
+    <h2>Cadastro de Produtos</h2>
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button" data-tab="doces">Doces</button>
+        <button class="tab-button" data-tab="planos">Academia</button>
+      </div>
+
+      <div id="doces" class="tab-content">
+        <form id="formCadastroDoce">
+          <input type="text" id="nomeDoce" placeholder="Nome do Doce" required>
+          <input type="text" id="saborDoce" placeholder="Sabor" required>
+          <input type="number" id="precoDoce" placeholder="Preço (R$)" min="0" step="0.01" required>
+          <input type="number" id="quantidadeDoce" placeholder="Quantidade" min="0" required>
+          <button type="submit" id="btnCadastrarDoce">Cadastrar Doce</button>
+        </form>
+      </div>
+
+      <div id="planos" class="tab-content">
+        <form id="formCadastroPlano">
+          <input type="text" id="nomePlano" placeholder="Nome do Plano" required>
+          <select id="tipoPlano" required>
+            <option value="">Selecione o Tipo</option>
+            <option value="MENSAL">Mensal</option>
+            <option value="TRIMESTRAL">Trimestral</option>
+            <option value="SEMESTRAL">Semestral</option>
+            <option value="ANUAL">Anual</option>
+          </select>
+          <input type="number" id="valorPlano" placeholder="Valor Mensal (R$)" min="0" step="0.01" required>
+          <button type="submit" id="btnCadastrarPlano">Cadastrar Plano</button>
+        </form>
+      </div>
+    </div>
   </section>
 
-  <section id="buscaDoce">
-    <h2>Buscar Produto</h2>
-    <form id="formBuscaDoce">
-      <input type="text" id="buscaNomeProduto" placeholder="Nome do Produto">
-      <button type="submit">Buscar</button>
-    </form>
-    <table id="tblProdutos" class="hidden">
-      <thead><tr><th>ID</th><th>Nome</th><th>Preço</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div id="buscaProdutoMsg"></div>
+  <section id="buscaProduto">
+    <h2>Buscar Produtos</h2>
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button" data-tab="busca-doces">Doces</button>
+        <button class="tab-button" data-tab="busca-planos">Academia</button>
+      </div>
+
+      <div id="busca-doces" class="tab-content">
+        <form id="formBuscaDoce">
+          <input type="text" id="buscaDoceNome" placeholder="Nome do Doce">
+          <button type="submit" id="btnBuscarDoce">Buscar</button>
+        </form>
+        <div id="listaDoces" class="card-grid"></div>
+      </div>
+
+      <div id="busca-planos" class="tab-content">
+        <div id="listaPlanos" class="card-grid"></div>
+      </div>
+    </div>
   </section>
 
   <section id="historico">
@@ -175,7 +209,6 @@
     </div>
 
     <div id="formCadastroPlano" class="form-section">
-      <!-- ...existing code... -->
     </div>
   </section>
 
