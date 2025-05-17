@@ -330,6 +330,52 @@ const planoManager = {
     }
 };
 
+// Gerenciador de cadastro de compras
+const compraManager = {
+    init() {
+        const addDoceBtn = document.getElementById('addDoceSelect');
+        if (addDoceBtn) {
+            addDoceBtn.addEventListener('click', () => this.adicionarItemCompra());
+        }
+        this.carregarProdutos();
+    },
+
+    async carregarProdutos() {
+        try {
+            const response = await fetch('/doces');
+            if (!response.ok) throw new Error('Erro ao carregar produtos');
+            
+            const produtos = await response.json();
+            this.produtos = produtos;
+        } catch (error) {
+            console.error('Erro ao carregar produtos:', error);
+        }
+    },
+
+    adicionarItemCompra() {
+        const container = document.getElementById('itensCompraSelects');
+        if (!container) return;
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'item-compra';
+        itemDiv.innerHTML = `
+            <select class="produto-select" required>
+                <option value="">Selecione o produto</option>
+                ${this.produtos.map(p => `
+                    <option value="${p.id}">${p.nome} - R$ ${p.preco.toFixed(2)}</option>
+                `).join('')}
+            </select>
+            <input type="number" class="quantidade-input" placeholder="Quantidade" min="1" required>
+            <button type="button" class="remover-item">Remover</button>
+        `;
+
+        const btnRemover = itemDiv.querySelector('.remover-item');
+        btnRemover.addEventListener('click', () => itemDiv.remove());
+
+        container.appendChild(itemDiv);
+    }
+};
+
 // Gerenciador de abas
 const tabManager = {
     init() {
@@ -380,4 +426,5 @@ document.addEventListener('DOMContentLoaded', () => {
     doceManager.init();
     planoManager.init();
     tabManager.init();
+    compraManager.init();
 });

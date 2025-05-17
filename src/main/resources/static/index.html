@@ -157,7 +157,7 @@
     </div>
   </section>
 
-  <section id="buscaProduto">
+  <section id="buscaDoce">
     <h2>Buscar Produtos</h2>
     <div class="tab-container">
       <div class="tab-buttons">
@@ -298,38 +298,10 @@
       }
     };
 
-    const tabManager = {
-      init() {
-        this.setupTabs();
-      },
-
-      setupTabs() {
-        document.querySelectorAll('.tab-button').forEach(button => {
-          button.addEventListener('click', (e) => {
-            const tabId = e.target.dataset.tab;
-            const section = e.target.closest('section');
-            
-            // Remove active class from all tabs in this section
-            section.querySelectorAll('.tab-button').forEach(btn => {
-              btn.classList.remove('active');
-            });
-            section.querySelectorAll('.tab-content').forEach(content => {
-              content.classList.remove('active');
-            });
-            
-            // Add active class to clicked tab and its content
-            e.target.classList.add('active');
-            section.querySelector(`#${tabId}`).classList.add('active');
-          });
-        });
-      }
-    };
-
-    // Adiciona inicialização das abas
+    // Adiciona inicialização
     document.addEventListener('DOMContentLoaded', () => {
       themeManager.init();
       formManager.init();
-      tabManager.init();
     });
   </script>
 </body>
