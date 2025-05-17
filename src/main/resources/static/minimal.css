@@ -535,3 +535,151 @@ button:hover::before {
   background: #e0c36b;
   color: #232323;
 }
+
+.produto-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.dark .produto-card {
+  background: #232323;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.produto-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.dark .produto-card h3 {
+  color: #e0c36b;
+}
+
+.produto-card p {
+  margin: 0.25rem 0;
+  color: #666;
+}
+
+.dark .produto-card p {
+  color: #aaa;
+}
+
+.form-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+.form-error.show {
+  display: block;
+}
+
+.form-success {
+  color: #28a745;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+.form-success.show {
+  display: block;
+}
+
+.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+}
+
+.loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px;
+  border: 2px solid #ffd700;
+  border-top-color: transparent;
+  border-radius: 50%;
+  z-index: 1;
+  animation: spin 0.8s linear infinite;
+}
+
+.dark .loading::after {
+  background: rgba(35,35,35,0.8);
+}
+
+.dark .loading::before {
+  border-color: #e0c36b transparent #e0c36b #e0c36b;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-contratar {
+  background: #ffd700;
+  color: #222;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.dark .btn-contratar {
+  background: #e0c36b;
+  color: #232323;
+}
+
+.btn-contratar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255,215,0,0.3);
+}
+
+.dark .btn-contratar:hover {
+  box-shadow: 0 4px 8px rgba(224,195,107,0.3);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

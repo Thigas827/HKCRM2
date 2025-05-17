@@ -1,6 +1,7 @@
 package com.CRM.HKCRM2.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import com.CRM.HKCRM2.Service.PlanoService;
@@ -65,4 +67,16 @@ public ResponseEntity<Plano> getById(@PathVariable Integer id) {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plano não encontrado");
     }
-}    
+
+    @PostMapping("/{id}/contratar")
+    public ResponseEntity<?> contratar(@PathVariable Integer id, @RequestParam UUID clienteId) {
+        try {
+            service.contratar(id, clienteId);
+            return ResponseEntity.ok("Plano contratado com sucesso");
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contratar plano");
+        }
+    }
+}
