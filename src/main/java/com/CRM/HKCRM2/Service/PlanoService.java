@@ -72,7 +72,7 @@ public class PlanoService {
     @Transactional
     public void contratar(Integer planoId, UUID clienteId) {
         // Busca o plano
-        Plano plano = repository.findById(planoId)
+        repository.findById(planoId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plano não encontrado"));
 
         // Verifica se o usuário existe

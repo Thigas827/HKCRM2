@@ -21,4 +21,5 @@ public class IndicacaoService {
     public void registrarIndicacao(String emailIndicador, String emailIndicado) {
         // MVP: Sem implementação, apenas estrutura
         // TODO: Implementar lógica de indicação em versões futuras
+        }
     }
