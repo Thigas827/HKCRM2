@@ -685,6 +685,9 @@ button.loading::after {
   gap: 1rem;
   margin-bottom: 1rem;
 }
+/* Se quiser, estilize seu feedback/loading na aba Academia */
+#listaAcademia.loading { opacity: .5; }
+/* ... */
 
 .tab-button {
   padding: 0.5rem 1rem;

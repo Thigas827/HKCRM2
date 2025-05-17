@@ -375,6 +375,76 @@ const compraManager = {
         container.appendChild(itemDiv);
     }
 };
+// Em seu arquivo de managers (pode ficar logo abaixo de doceManager e planoManager):
+
+const academiaManager = {
+  init() {
+    const form = document.getElementById('formBuscaAcademia');
+    if (form) form.addEventListener('submit', e => this.buscarAcademia(e));
+    // ao inicializar, você pode já carregar todos os itens:
+    this.carregarAcademia();
+  },
+
+  async carregarAcademia() {
+    const container = document.getElementById('listaAcademia');
+    try {
+      uiManager.showLoading(container);
+      const res = await fetch('/academia/listar', {
+        headers: { 'Authorization': AUTH_HEADER }
+      });
+      if (!res.ok) throw new Error('Erro ao carregar academia');
+      const items = await res.json();
+      this.exibirAcademia(items);
+    } catch (err) {
+      uiManager.showFeedback(container, 'error', err.message);
+    } finally {
+      uiManager.hideLoading(container);
+    }
+  },
+
+  async buscarAcademia(e) {
+    e.preventDefault();
+    const form = e.target;
+    const nome = document.getElementById('buscaAcademiaNome').value.trim();
+    try {
+      uiManager.showLoading(form, 'btnBuscarAcademia');
+      const res = await fetch(`/academia?nome=${encodeURIComponent(nome)}`, {
+        headers: { 'Authorization': AUTH_HEADER }
+      });
+      if (!res.ok) throw new Error('Erro na busca');
+      const items = await res.json();
+      this.exibirAcademia(items);
+      uiManager.showFeedback(form, 'success', `${items.length} item(ns) encontrado(s)`);
+    } catch (err) {
+      uiManager.showFeedback(form, 'error', err.message);
+    } finally {
+      uiManager.hideLoading(form, 'btnBuscarAcademia');
+    }
+  },
+
+  exibirAcademia(items) {
+    uiManager.refreshList('listaAcademia', items, item => {
+      const card = document.createElement('div');
+      card.className = 'academia-card';
+      card.innerHTML = `
+        <h4>${item.nome}</h4>
+        <p>${item.descricao || ''}</p>
+        <p>Valor: R$ ${item.valor.toFixed(2)}</p>
+      `;
+      return card;
+    });
+  }
+};
+
+
+// Não se esqueça de inicializar:
+document.addEventListener('DOMContentLoaded', () => {
+  doceManager.init();
+  planoManager.init();
+  academiaManager.init();   // <<< aqui
+  compraManager.init();
+  tabManager.init();
+});
 
 // Gerenciador de abas
 const tabManager = {
