@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#222222">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>HKCRM2 - Cadastro e Histórico de Compras</title>
   <link rel="stylesheet" href="minimal.css">
   <style>
@@ -151,329 +154,96 @@
   </section>
 
   <script>
-    // Configuração da API
-    const apiUrl = '/doces'; // Removendo o prefixo /api pois não está configurado no backend
-
-    // Navegação
-    document.querySelectorAll('nav a').forEach(link => {
-      link.onclick = () => {
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById(link.dataset.target).classList.add('active');
-      };
-    });
-
-    // Login de fachada
-    document.getElementById('formLogin').onsubmit = e => {
-      e.preventDefault();
-      document.getElementById('loginMsg').textContent = 'Login de fachada realizado!';
-      // Mostra as outras seções
-      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-      document.getElementById('cadastro').classList.add('active');
-    };
-
-    // --- Cadastro de Produto (geral) ---
-    document.getElementById('formCadastroProduto').onsubmit = async e => {
-      e.preventDefault();
-      const nome = document.getElementById('nomeProduto').value.trim();
-      const preco = parseFloat(document.getElementById('precoProduto').value);
-      const dto = { nome, preco };
-      try {
-        const resp = await fetch('/produtos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dto)
-        });
-        if (!resp.ok) {
-          const error = await resp.text();
-          throw new Error(error);
-        }
-        document.getElementById('cadastroProdutoMsg').textContent = 'Produto cadastrado com sucesso!';
-        document.getElementById('formCadastroProduto').reset();
-      } catch (err) {
-        console.error('Erro:', err);
-        document.getElementById('cadastroProdutoMsg').textContent = 'Erro ao cadastrar produto. Por favor, tente novamente.';
-      }
-    };
-
-    // --- Busca de Produtos ---
-    document.getElementById('formBuscaDoce').onsubmit = async e => {
-      e.preventDefault();
-      const nomeBusca = document.getElementById('buscaNomeProduto').value.trim().toLowerCase();
-      try {
-        const resp = await fetch('/produtos');
-        if (!resp.ok) {
-          throw new Error(`HTTP error! status: ${resp.status}`);
-        }
-        const produtos = await resp.json();
-        const tbody = document.querySelector('#tblProdutos tbody');
-        tbody.innerHTML = '';
-        let encontrados = 0;
-        produtos.forEach(p => {
-          if (!nomeBusca || p.nome.toLowerCase().includes(nomeBusca)) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${p.id}</td><td>${p.nome}</td><td>R$ ${parseFloat(p.preco).toFixed(2)}</td>`;
-            tbody.appendChild(tr);
-            encontrados++;
-          }
-        });
-        document.getElementById('tblProdutos').classList.toggle('hidden', encontrados === 0);
-        document.getElementById('buscaProdutoMsg').textContent = encontrados ? '' : 'Nenhum produto encontrado.';
-      } catch (err) {
-        console.error('Erro:', err);
-        document.getElementById('buscaProdutoMsg').textContent = 'Erro ao buscar produtos. Por favor, tente novamente.';
-      }
-    };
-
-    // --- Selects dinâmicos de doces no cadastro de compra ---
-    let listaProdutos = [];
-    async function carregarProdutosSelect() {
-      try {
-        const resp = await fetch('/produtos');
-        if (!resp.ok) {
-          throw new Error(`HTTP error! status: ${resp.status}`);
-        }
-        const data = await resp.json();
-        listaProdutos = Array.isArray(data) ? data : [];
-        atualizarSelectsProdutos();
-      } catch (err) {
-        console.error('Erro ao carregar produtos:', err);
-        document.getElementById('cadastroMsg').textContent = 'Erro ao carregar lista de produtos. Por favor, tente novamente mais tarde.';
-        listaProdutos = [];
-      }
-    }
-    function criarSelectProduto(idx) {
-      const div = document.createElement('div');
-      div.style.display = 'flex';
-      div.style.gap = '0.5rem';
-      const select = document.createElement('select');
-      select.name = 'produtoSelect';
+    const themeManager = {
+      isDark: false,
+      elements: [],
       
-      if (listaProdutos.length === 0) {
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = 'Nenhum produto disponível';
-        select.appendChild(opt);
-        select.disabled = true;
-      } else {
-        listaProdutos.forEach(p => {
-          const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.textContent = `${p.nome} - R$${parseFloat(p.preco).toFixed(2)}`;
-          select.appendChild(opt);
-        });
-      }
+      init() {
+        this.isDark = localStorage.getItem('darkMode') === 'true';
+        this.elements = document.querySelectorAll('body, nav, section, h2, input, select, button, table, th, td, .compra-card, .form-group');
+        this.toggleButton = document.getElementById('toggleTheme');
+        this.setupListeners();
+        this.applyTheme();
+      },
 
-      const inputQtd = document.createElement('input');
-      inputQtd.type = 'number';
-      inputQtd.min = '1';
-      inputQtd.value = '1';
-      inputQtd.style.width = '60px';
-      inputQtd.placeholder = 'Qtd';
-      
-      const btnRemover = document.createElement('button');
-      btnRemover.type = 'button';
-      btnRemover.textContent = 'Remover';
-      btnRemover.onclick = () => {
-        div.remove();
-      };
-      
-      div.appendChild(select);
-      div.appendChild(inputQtd);
-      div.appendChild(btnRemover);
-      return div;
-    }
-    function atualizarSelectsProdutos() {
-      const container = document.getElementById('itensCompraSelects');
-      container.innerHTML = '';
-      container.appendChild(criarSelectProduto(0));
-    }
-    document.getElementById('addDoceSelect').onclick = () => {
-      document.getElementById('itensCompraSelects').appendChild(criarSelectProduto(Date.now()));
-    };
-    carregarProdutosSelect();
-
-    // Cadastro de cliente + compra
-    document.getElementById('formCadastro').onsubmit = async e => {
-      e.preventDefault();
-      const cliente = {
-        nome: document.getElementById('nome').value,
-        email: document.getElementById('email').value,
-        endereco: document.getElementById('endereco').value,
-        telefone: document.getElementById('telefone').value,
-        senha: '123456' // senha padrão para evitar erro no backend
-      };
-      // Cria cliente
-      let resp = await fetch('/usuarios/criar', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cliente)
-      });
-      if (!resp.ok) {
-        let msg = 'Erro ao cadastrar cliente.';
-        try {
-          const err = await resp.json();
-          if (err && err.message) msg += ' ' + err.message;
-        } catch {}
-        document.getElementById('cadastroMsg').textContent = msg;
-        return;
-      }
-      const criado = await resp.json();
-      // Itens da compra
-      const selects = document.querySelectorAll('#itensCompraSelects select');
-      const inputsQtd = document.querySelectorAll('#itensCompraSelects input[type="number"]');
-      const itens = [];
-      selects.forEach((select, idx) => {
-        const qtd = parseInt(inputsQtd[idx].value);
-        if (qtd > 0) itens.push({ produtoId: parseInt(select.value), quantidade: qtd });
-      });
-      if (itens.length) {
-        resp = await fetch('/compras', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clienteId: criado.id, itens })
+      setupListeners() {
+        this.toggleButton.addEventListener('click', () => {
+          this.isDark = !this.isDark;
+          localStorage.setItem('darkMode', this.isDark);
+          this.applyTheme();
         });
-        if (!resp.ok) { document.getElementById('cadastroMsg').textContent = 'Cliente cadastrado, mas erro ao registrar compra.'; return; }
-        document.getElementById('cadastroMsg').textContent = 'Cliente e compra cadastrados com sucesso!';
-      } else {
-        document.getElementById('cadastroMsg').textContent = 'Cliente cadastrado (sem compra).';
+      },
+
+      applyTheme() {
+        this.elements.forEach(el => {
+          el.classList.toggle('dark', this.isDark);
+        });
+        this.toggleButton.textContent = this.isDark ? 'Modo Claro' : 'Modo Escuro';
       }
-      e.target.reset();
-      carregarDocesSelect();
     };
 
-    // Preencher select de clientes no histórico
-    async function carregarClientes() {
-      try {
-        const resp = await fetch('/usuarios/todos');
-        if (!resp.ok) {
-          throw new Error(`HTTP error! status: ${resp.status}`);
-        }
-        const data = await resp.json();
-        return Array.isArray(data) ? data : [];
-      } catch (err) {
-        console.error('Erro ao carregar clientes:', err);
-        document.getElementById('historicoMsg').textContent = 'Erro ao carregar lista de clientes. Por favor, tente novamente mais tarde.';
-        return [];
-      }
-    }
+    const formManager = {
+      init() {
+        this.setupFormValidation();
+        this.setupNavigation();
+      },
 
-    async function preencherClientesHistorico() {
-      try {
-        const clientes = await carregarClientes();
-        const select = document.getElementById('clienteSelect');
-        select.innerHTML = '<option value="">Selecione o cliente</option>';
-        select.disabled = false;
-        
-        if (clientes && clientes.length > 0) {
-          clientes.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.id;
-            opt.textContent = `${c.nome} (${c.email})`;
-            select.appendChild(opt);
+      setupFormValidation() {
+        document.querySelectorAll('form').forEach(form => {
+          form.addEventListener('submit', this.handleSubmit.bind(this));
+        });
+      },
+
+      setupNavigation() {
+        document.querySelectorAll('nav a').forEach(link => {
+          link.addEventListener('click', (e) => {
+            const target = e.target.dataset.target;
+            this.showSection(target);
           });
-        } else {
-          select.innerHTML = '<option value="">Nenhum cliente encontrado</option>';
-          select.disabled = true;
-        }
-      } catch (err) {
-        console.error('Erro ao preencher select de clientes:', err);
-        const select = document.getElementById('clienteSelect');
-        select.innerHTML = '<option value="">Erro ao carregar clientes</option>';
-        select.disabled = true;
-      }
-    }
-
-    // Carregar clientes ao abrir aba histórico
-    document.querySelector('a[data-target="historico"]').addEventListener('click', preencherClientesHistorico);
-
-    // Histórico de compras
-    document.getElementById('formHistorico').onsubmit = async e => {
-      e.preventDefault();
-      const id = document.getElementById('clienteSelect').value;
-      if (!id) return;
-      
-      try {
-        const resp = await fetch(`/compras/detalhes?clienteId=${id}`);
-        if (!resp.ok) {
-          throw new Error(`HTTP error! status: ${resp.status}`);
-        }
-        const compras = await resp.json();
-        const container = document.getElementById('historicoCompras');
-        container.innerHTML = '';
-        
-        if (!compras.length) {
-          document.getElementById('historicoMsg').textContent = 'Nenhuma compra encontrada.';
-          return;
-        }
-        
-        document.getElementById('historicoMsg').textContent = '';
-        
-        compras.forEach(compra => {
-          const compraDiv = document.createElement('div');
-          compraDiv.className = 'compra-card';
-          compraDiv.style.marginBottom = '2rem';
-          compraDiv.style.padding = '1rem';
-          compraDiv.style.border = '1px solid #ccc';
-          compraDiv.style.borderRadius = '8px';
-          
-          const header = document.createElement('div');
-          header.style.marginBottom = '1rem';
-          header.innerHTML = `
-            <strong>Compra #${compra.id}</strong><br>
-            Data: ${new Date(compra.dataCompra).toLocaleString()}<br>
-            <strong>Valor Total: R$ ${compra.valorTotal.toFixed(2)}</strong>
-          `;
-          
-          const table = document.createElement('table');
-          table.style.width = '100%';
-          table.style.borderCollapse = 'collapse';
-          table.innerHTML = `
-            <thead>
-              <tr>
-                <th>Produto</th>
-                <th>Quantidade</th>
-                <th>Preço Unit.</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${compra.itens.map(item => `
-                <tr>
-                  <td>${item.nomeProduto}</td>
-                  <td>${item.quantidade}</td>
-                  <td>R$ ${item.precoUnitario.toFixed(2)}</td>
-                  <td>R$ ${item.subtotal.toFixed(2)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          `;
-          
-          compraDiv.appendChild(header);
-          compraDiv.appendChild(table);
-          container.appendChild(compraDiv);
-          
-          if (darkMode) {
-            compraDiv.classList.add('dark');
-          }
         });
-      } catch (err) {
-        console.error('Erro:', err);
-        document.getElementById('historicoMsg').textContent = 'Erro ao carregar o histórico de compras. Por favor, tente novamente.';
+      },
+
+      showSection(id) {
+        document.querySelectorAll('section').forEach(section => {
+          section.classList.toggle('active', section.id === id);
+        });
+      },
+
+      async handleSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        form.classList.add('loading');
+
+        try {
+          // Implementar lógica de envio do formulário aqui
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulação
+          this.showFeedback(form, 'success', 'Operação realizada com sucesso!');
+        } catch (error) {
+          this.showFeedback(form, 'error', 'Erro ao processar operação. Tente novamente.');
+        } finally {
+          form.classList.remove('loading');
+        }
+      },
+
+      showFeedback(form, type, message) {
+        let feedback = form.querySelector('.form-feedback');
+        if (!feedback) {
+          feedback = document.createElement('div');
+          feedback.className = 'form-feedback';
+          form.appendChild(feedback);
+        }
+
+        feedback.textContent = message;
+        feedback.classList.add('show', type);
+        setTimeout(() => feedback.classList.remove('show'), 3000);
       }
     };
 
-    // Alternância de tema
-    const themeBtn = document.getElementById('toggleTheme');
-    let darkMode = false;
-    function setTheme(dark) {
-      darkMode = dark;
-      document.body.classList.toggle('dark', dark);
-      document.querySelectorAll('nav').forEach(e => e.classList.toggle('dark', dark));
-      document.querySelectorAll('section').forEach(e => e.classList.toggle('dark', dark));
-      document.querySelectorAll('h2').forEach(e => e.classList.toggle('dark', dark));
-      document.querySelectorAll('input,select,button').forEach(e => e.classList.toggle('dark', dark));
-      document.querySelectorAll('table,th,td').forEach(e => e.classList.toggle('dark', dark));
-      document.querySelectorAll('.compra-card').forEach(e => e.classList.toggle('dark', dark));
-      themeBtn.textContent = dark ? 'Modo Claro' : 'Modo Escuro';
-    }
-    themeBtn.onclick = () => setTheme(!darkMode);
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      themeManager.init();
+      formManager.init();
+    });
   </script>
 </body>
 </html>

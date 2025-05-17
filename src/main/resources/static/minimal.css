@@ -5,6 +5,7 @@ body {
   background-color: #eaeaea;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 body.dark {
   background: #181818 url('chucrute.jpg') no-repeat center center fixed;
@@ -16,9 +17,12 @@ nav {
   color: #fff;
   padding: 1rem;
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 2px 8px #0002;
+  align-items: center;
+  justify-content: center;
 }
 nav.dark, nav.dark a {
   background: #111 !important;
@@ -36,9 +40,10 @@ nav a:hover {
 }
 section {
   display: none;
-  padding: 2rem;
+  padding: 1.5rem;
+  width: 90%;
   max-width: 600px;
-  margin: 2rem auto 0 auto;
+  margin: 1rem auto;
   background: rgba(245,245,245,0.92);
   border-radius: 12px;
   box-shadow: 0 4px 32px #0002;
@@ -76,6 +81,7 @@ input, button, select {
   box-shadow: 0 2px 8px #0001;
   background: #f7f7f7;
   color: #222;
+  transition: all 0.3s ease;
 }
 input.dark, select.dark, button.dark {
   background: #232323;
@@ -134,4 +140,198 @@ th, td {
 }
 .hidden {
   display: none;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.form-group.dark label {
+  color: #e0c36b;
+}
+
+.form-feedback {
+  display: none;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  color: #dc3545;
+}
+
+.form-feedback.success {
+  color: #28a745;
+}
+
+.form-feedback.show {
+  display: block;
+}
+
+.compra-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.compra-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.compra-card.dark {
+  border-color: #444;
+  background: #232323;
+}
+
+.compra-card.dark .compra-header {
+  border-bottom-color: #444;
+}
+
+.loading {
+  position: relative;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: -0.75rem;
+  border: 2px solid #ffd700;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  body {
+    background-size: cover;
+  }
+
+  nav {
+    padding: 0.75rem;
+  }
+
+  nav a {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    flex: 1 1 auto;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  section {
+    width: 95%;
+    padding: 1rem;
+    margin: 0.5rem auto;
+  }
+
+  input, button, select {
+    padding: 0.8rem;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .compra-card {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  nav {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+
+  nav a {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  nav a:last-child {
+    border-bottom: none;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  input, button, select {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .compra-card {
+    margin: 0.5rem 0;
+  }
+}
+
+/* Melhorias para telas muito pequenas */
+@media (max-width: 320px) {
+  nav a {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+
+  section {
+    padding: 0.75rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  input, button, select {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Melhorias para telas grandes */
+@media (min-width: 1200px) {
+  section {
+    max-width: 800px;
+  }
+
+  .compra-card {
+    padding: 2rem;
+  }
 }
