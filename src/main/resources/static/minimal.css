@@ -33,10 +33,32 @@ nav a {
   text-decoration: none;
   cursor: pointer;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
 }
 nav a:hover {
   color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+nav a:active {
+  transform: scale(0.98);
+}
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #ffd700;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+nav a:hover::after {
+  width: 80%;
 }
 section {
   display: none;
@@ -223,6 +245,103 @@ th, td {
   to { transform: rotate(360deg); }
 }
 
+/* Interatividade dos elementos */
+input, select {
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  background: #f7f7f7;
+  cursor: text;
+}
+
+input:hover, select:hover {
+  background: #ffffff;
+  border-color: #ddd;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+  background: #ffffff;
+}
+
+button {
+  position: relative;
+  background: #ffd700;
+  color: #222;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.8rem 1.5rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: #ffe033;
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+button:hover::before {
+  opacity: 1;
+}
+
+/* Dark mode adjustments */
+.dark input, .dark select {
+  background: #232323;
+  color: #e0c36b;
+  border-color: #444;
+}
+
+.dark input:hover, .dark select:hover {
+  background: #2a2a2a;
+  border-color: #555;
+}
+
+.dark input:focus, .dark select:focus {
+  border-color: #e0c36b;
+  box-shadow: 0 0 0 3px rgba(224, 195, 107, 0.2);
+  background: #2a2a2a;
+}
+
+.dark button {
+  background: #e0c36b;
+  color: #232323;
+}
+
+.dark button:hover {
+  background: #e8d08f;
+}
+
+/* Cursor feedback */
+[disabled] {
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   body {
@@ -334,4 +453,85 @@ th, td {
   .compra-card {
     padding: 2rem;
   }
+}
+
+/* Estilos para separar visualmente as seções de doces e planos */
+.categoria-section {
+  position: relative;
+  margin: 2rem auto;
+  padding-top: 3rem;
+}
+
+.categoria-title {
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffd700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  color: #222;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dark .categoria-title {
+  background: #e0c36b;
+  color: #232323;
+}
+
+.doces-section {
+  background: linear-gradient(45deg, rgba(255,215,0,0.05), rgba(255,192,203,0.05));
+  border: 2px solid rgba(255,215,0,0.2);
+}
+
+.planos-section {
+  background: linear-gradient(45deg, rgba(100,149,237,0.05), rgba(0,191,255,0.05));
+  border: 2px solid rgba(100,149,237,0.2);
+}
+
+.dark .doces-section {
+  background: linear-gradient(45deg, rgba(224,195,107,0.05), rgba(255,192,203,0.05));
+  border: 2px solid rgba(224,195,107,0.2);
+}
+
+.dark .planos-section {
+  background: linear-gradient(45deg, rgba(100,149,237,0.05), rgba(0,191,255,0.05));
+  border: 2px solid rgba(100,149,237,0.2);
+}
+
+.categoria-icon {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  background: #ffd700;
+  color: #222;
+}
+
+.dark .tab-button {
+  color: #999;
+}
+
+.dark .tab-button.active {
+  background: #e0c36b;
+  color: #232323;
 }
