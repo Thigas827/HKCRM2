@@ -14,7 +14,6 @@ import com.CRM.HKCRM2.dtos.PlanoDtos;
 import com.CRM.HKCRM2.dtos.CompraDtos;
 import com.CRM.HKCRM2.dtos.ItemDtos;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,16 +67,13 @@ public class PlanoService {
             return true;
         }).orElse(false); // Retorna false se o plano não for encontrado
 
-    }    @Transactional
+    }
+
+    @Transactional
     public void contratar(Integer planoId, UUID clienteId) {
         // Busca o plano
         Plano plano = repository.findById(planoId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plano não encontrado"));
-
-        // Verifica se o plano está ativo
-        if (plano.getDataFim() != null && plano.getDataFim().isBefore(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este plano não está mais disponível");
-        }
 
         // Verifica se o usuário existe
         usuarioRepository.findById(clienteId)
