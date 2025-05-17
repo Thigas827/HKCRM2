@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>HKCRM2 - Cadastro e Histórico de Compras</title>
   <link rel="stylesheet" href="minimal.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="produtos.js" defer></script>
   <style>
     body {
@@ -152,6 +153,30 @@
     </form>
     <div id="historicoCompras"></div>
     <div id="historicoMsg"></div>
+  </section>
+
+  <section id="planos-content" class="content-section">
+    <div class="section-header">
+      <img src="images/logo-leao.png" alt="Oficina do Corpo" class="academia-logo">
+      <h2>Planos de Academia</h2>
+    </div>
+    
+    <div class="container">
+      <div id="listaPlanos" class="planos-lista"></div>
+      
+      <div class="indicacao-card">
+        <h3>Indique e Ganhe!</h3>
+        <div class="beneficios">
+          <p><i class="fas fa-check"></i> 15 dias grátis por indicação</p>
+          <p><i class="fas fa-check"></i> Brindes exclusivos</p>
+          <p><i class="fas fa-whatsapp"></i> Use: E-mail ou WhatsApp</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="formCadastroPlano" class="form-section">
+      <!-- ...existing code... -->
+    </div>
   </section>
 
   <script>

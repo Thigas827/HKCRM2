@@ -49,10 +49,8 @@ public class UsuarioService {
      * Usado para garantir que as senhas sejam armazenadas de forma segura
      */
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public UsuarioMod criarUsuario(UsuarioMod usuario) {
-        if (usuarioRepository.findByEmail(usuario.getEmail()) != null) {
+    private PasswordEncoder passwordEncoder;    public UsuarioMod criarUsuario(UsuarioMod usuario) {
+        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
             throw new UsuarioJaExiste();
         }
         String hash = passwordEncoder.encode(usuario.getSenha());
@@ -71,15 +69,10 @@ public class UsuarioService {
         usuario.setRoles(rolesSalvas);
 
         return usuarioRepository.save(usuario);
-    }
-
-    public boolean autenticar(String email, String senha) {
-        UsuarioMod usuario = usuarioRepository.findByEmail(email);
-        if (usuario == null) {
-            return false;
-        }
-        // compara raw vs hash
-        return passwordEncoder.matches(senha, usuario.getSenha());
+    }    public boolean autenticar(String email, String senha) {
+        return usuarioRepository.findByEmail(email)
+            .map(usuario -> passwordEncoder.matches(senha, usuario.getSenha()))
+            .orElse(false);
     }
 
     // Métodos auxiliares — úteis para outros endpoints:
@@ -87,11 +80,9 @@ public class UsuarioService {
     /** Lista todos os usuários. */
     public List<UsuarioMod> listarUsuarios() {
         return usuarioRepository.findAll();
-    }
-
-    /** Busca um usuário pelo e-mail. */
+    }    /** Busca um usuário pelo e-mail. */
     public UsuarioMod buscarPorEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+        return usuarioRepository.findByEmail(email).orElse(null);
     }
 
     /** Deleta usuário pelo e-mail. */

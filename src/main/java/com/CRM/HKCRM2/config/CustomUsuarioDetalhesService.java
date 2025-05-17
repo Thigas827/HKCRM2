@@ -13,16 +13,11 @@ import org.springframework.stereotype.Service;
 public class CustomUsuarioDetalhesService implements UserDetailsService {
 
     @Autowired
-    private UIUsuarioRepository usuarioRepository;
-
-    @Override
+    private UIUsuarioRepository usuarioRepository;    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Busca o usuário pelo email no repositório
-        UsuarioMod usuario = usuarioRepository.findByEmail(email);
-        // Se o usuário não for encontrado, lança uma exceção
-        if (usuario == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
-        }
+        // Busca o usuário pelo email no repositório e converte o Optional
+        UsuarioMod usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         // Converte as permissões do usuário em uma lista de autoridades
         var authorities = usuario.getRoles()

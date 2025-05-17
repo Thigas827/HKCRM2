@@ -1,5 +1,7 @@
 package com.CRM.HKCRM2.model;
 
+import java.time.LocalDate;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -63,6 +65,9 @@ public class UsuarioMod {
     )
     private Set<Role> roles = new HashSet<>();
 
+    @Column(name = "data_fim_plano")
+    private LocalDate dataFimPlano;
+
     public UsuarioMod() { // Construtor padrão
     } 
 
@@ -113,6 +118,13 @@ public class UsuarioMod {
     }
     public void setTelefone(String telefone) { // Setter para o telefone
         this.telefone = telefone;
+    }
+
+    public LocalDate getDataFimPlano() { // Getter para dataFimPlano
+        return dataFimPlano;
+    }
+    public void setDataFimPlano(LocalDate dataFimPlano) { // Setter para dataFimPlano
+        this.dataFimPlano = dataFimPlano;
     }
 
       // Não criar setter para createdAt (é gerado automaticamente)
