@@ -1,34 +1,51 @@
 // URL base do seu backend
 const API = 'http://localhost:8080';
 
-let authHeader = null;
+// Captura de elementos fixos
+const formLogin           = document.getElementById('formLogin');
+const loginEmail          = document.getElementById('loginEmail');
+const loginSenha          = document.getElementById('loginSenha');
+const loginMsg            = document.getElementById('loginMsg');
+const formCadastro        = document.getElementById('formCadastro');
+const nomeCliente         = document.getElementById('nomeCliente');
+const emailCliente        = document.getElementById('emailCliente');
+const endereco            = document.getElementById('endereco');
+const telefone            = document.getElementById('telefone');
+const addDoceSelect       = document.getElementById('addDoceSelect');
+const itensCompraSelects  = document.getElementById('itensCompraSelects');
+const cadMsg              = document.getElementById('cadastroMsg');
+const formHistorico       = document.getElementById('formHistorico');
+const clienteSelect       = document.getElementById('clienteSelect');
+const historicoMsg        = document.getElementById('historicoMsg');
+const historicoCompras    = document.getElementById('historicoCompras');
+const themeBtn            = document.getElementById('toggleTheme');
 
 // Navegação entre seções
-document.querySelectorAll('nav a').forEach(a=>{
-  a.onclick = e => {
-    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('nav a').forEach(a => {
+  a.onclick = () => {
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
     document.getElementById(a.dataset.target).classList.add('active');
   };
 });
 
 // Modo escuro
-const themeBtn = document.getElementById('toggleTheme');
-themeBtn.onclick = ()=>{
+themeBtn.onclick = () => {
   document.body.classList.toggle('dark');
   themeBtn.textContent = document.body.classList.contains('dark') ? 'Modo Claro' : 'Modo Escuro';
 };
 
 // ------------ LOGIN ------------
-document.getElementById('formLogin').onsubmit = async e=>{
+formLogin.onsubmit = async e => {
   e.preventDefault();
-  const email = loginEmail.value, senha = loginSenha.value;
   const resp = await fetch(`${API}/usuarios/login`, {
-    method:'POST',
+    method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({email,senha})
+    body: JSON.stringify({
+      email: loginEmail.value,
+      senha: loginSenha.value
+    })
   });
-  if(resp.ok){
-    authHeader = btoa(`${email}:${senha}`);
+  if (resp.ok) {
     loginMsg.textContent = '✔️ Logado!';
   } else {
     loginMsg.textContent = '❌ E-mail ou senha inválidos';
@@ -36,135 +53,146 @@ document.getElementById('formLogin').onsubmit = async e=>{
 };
 
 // ------------ CADASTRO CLIENTE + COMPRA ------------
-document.getElementById('addItem').onclick = addItem;
-function addItem(){
+addDoceSelect.onclick = addItem;
+formCadastro.onsubmit = cadastrarClienteCompra;
+
+async function addItem(){
   const div = document.createElement('div');
   div.innerHTML = `
     <select class="prodSel"></select>
     <input type="number" class="qtde" value="1" min="1">
     <button class="rem">X</button>`;
-  div.querySelector('.rem').onclick = ()=>div.remove();
-  document.getElementById('itensCompra').append(div);
-  loadProdutos(div.querySelector('.prodSel'));
+  div.querySelector('.rem').onclick = () => div.remove();
+  itensCompraSelects.append(div);
+  await loadProdutos(div.querySelector('.prodSel'));
 }
+
 async function loadProdutos(sel){
-  const r=await fetch(`${API}/produtos`);
-  const ps=await r.json();
-  sel.innerHTML = ps.map(p=>`<option value="${p.id}">${p.nome} (R$${p.preco.toFixed(2)})</option>`).join('');
+  const r = await fetch(`${API}/doces/listar`);
+  const ps = await r.json();
+  sel.innerHTML = ps.map(p =>
+    `<option value="${p.id}">${p.nome} (R$${p.preco.toFixed(2)})</option>`
+  ).join('');
 }
-document.getElementById('formCadastro').onsubmit = async e=>{
+
+async function cadastrarClienteCompra(e){
   e.preventDefault();
+  // 1) cria cliente
   const cliente = {
-    nome: cadNome.value,
-    email: cadEmail.value,
-    senha: 'Temp123!', // default
-    endereco: cadEndereco.value,
-    telefone: cadTelefone.value,
+    nome: nomeCliente.value,
+    email: emailCliente.value,
+    senha: 'Temp123!',
+    endereco: endereco.value,
+    telefone: telefone.value,
     roles: [{nome:'ROLE_CLIENTE'}]
   };
-  // cria usuário
   const cr = await fetch(`${API}/usuarios/criar`, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
     body: JSON.stringify(cliente)
   });
-  if(!cr.ok){ cadMsg.textContent='❌ Erro ao cadastrar.'; return; }
+  if (!cr.ok) {
+    cadMsg.textContent = '❌ Erro ao cadastrar cliente.';
+    return;
+  }
   const user = await cr.json();
-  // registra compra
-  const itens = [...document.querySelectorAll('#itensCompra>div')].map(d=>({
+  // 2) registra compra
+  const itens = Array.from(itensCompraSelects.children).map(d => ({
     produtoId: +d.querySelector('.prodSel').value,
     quantidade: +d.querySelector('.qtde').value
   }));
   const cp = await fetch(`${API}/compras`, {
-    method:'POST',
-    headers:{
+    method: 'POST',
+    headers: {
       'Content-Type':'application/json',
-      'Authorization': 'Basic '+btoa(`${user.email}:Temp123!`)
+      'Authorization': 'Basic ' + btoa(`${user.email}:Temp123!`)
     },
-    body: JSON.stringify({clienteId:user.id,itens})
+    body: JSON.stringify({clienteId: user.id, itens})
   });
-  if(cp.ok){
-    cadMsg.textContent=`✅ Venda registrada!`;
-    formCadastro.reset(); itensCompra.innerHTML='';
+  if (cp.ok) {
+    cadMsg.textContent = '✅ Venda registrada!';
+    formCadastro.reset();
+    itensCompraSelects.innerHTML = '';
   } else {
-    cadMsg.textContent='❌ Erro ao registrar compra.';
+    cadMsg.textContent = '❌ Erro ao registrar compra.';
   }
-};
-// ------------ CADASTRO DOCE + PLANO ------------
-
-
+}
 
 // ------------ HISTÓRICO ------------
-document.getElementById('formHistorico').onsubmit = async e=>{
+formHistorico.onsubmit = async e => {
   e.preventDefault();
-  const email = histEmail.value;
-  // busca cliente por e-mail
-  const ru = await fetch(`${API}/usuarios/buscar?email=${encodeURIComponent(email)}`);
-  if(!ru.ok){ histResultado.textContent='Cliente não encontrado'; return; }
-  const u = await ru.json();
-  // busca compras
-  const rc = await fetch(`${API}/compras?clienteId=${u.id}`);
+  const clienteId = clienteSelect.value;
+  if (!clienteId) {
+    historicoMsg.textContent = 'Selecione um cliente.';
+    return;
+  }
+  const rc = await fetch(`${API}/compras?clienteId=${clienteId}`);
   const list = await rc.json();
-  histResultado.innerHTML = list.length
-    ? list.map(c=>`<div class="compra-card">
-        <div class="compra-header">
-          <strong>#${c.id}</strong> ${new Date(c.dataCompra).toLocaleString()}
-          <span>R$ ${c.valorTotal.toFixed(2)}</span>
+  historicoCompras.innerHTML = list.length
+    ? list.map(c => `
+        <div class="compra-card">
+          <div class="compra-header">
+            <strong>#${c.id}</strong>
+            ${new Date(c.dataCompra).toLocaleString()}
+            <span>R$ ${c.valorTotal.toFixed(2)}</span>
+          </div>
         </div>
-      </div>`).join('')
+      `).join('')
     : 'Nenhuma compra.';
 };
 
 // ------------ DOCES & PLANOS ------------
-tabButtons = document.querySelectorAll('.tab-button');
-tabButtons.forEach(btn=>{
-  btn.onclick = ()=>{
-    btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    btn.parentNode.nextElementSibling.querySelectorAll('.tab-content').forEach(tc=>tc.classList.remove('active'));
-    document.getElementById(btn.dataset.tab).classList.add('active');
+const formDoce  = document.getElementById('formCadastroDoce');
+const formPlano = document.getElementById('formCadastroPlano');
+
+formDoce.onsubmit = async e => {
+  e.preventDefault();
+  const dto = {
+    nome: document.getElementById('nomeDoce').value,
+    sabor: document.getElementById('saborDoce').value,
+    preco: parseFloat(document.getElementById('precoDoce').value),
+    quantidade: parseInt(document.getElementById('quantidadeDoce').value, 10)
   };
-});
-async function refreshLista(url, container){
-  const r=await fetch(API+url); const items=await r.json();
-  document.getElementById(container).innerHTML =
-    items.map(o=>`<div class="produto-card">
+  await fetch(`${API}/doces/criar`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(dto)
+  });
+  await refreshLista('/doces/listar','listaDoces');
+  formDoce.reset();
+};
+
+formPlano.onsubmit = async e => {
+  e.preventDefault();
+  const dto = {
+    nome: document.getElementById('nomePlano').value,
+    tipo: document.getElementById('tipoPlano').value,
+    valorMensal: parseFloat(document.getElementById('valorPlano').value)
+  };
+  await fetch(`${API}/planos/criar`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(dto)
+  });
+  await refreshLista('/planos/listar','listaPlanos');
+  formPlano.reset();
+};
+
+async function refreshLista(path, containerId){
+  const r = await fetch(API + path);
+  const items = await r.json();
+  document.getElementById(containerId).innerHTML = items.map(o => `
+    <div class="produto-card">
       <h4>${o.nome}</h4>
-      <p>${o.sabor||o.tipoPlano||''}</p>
-      <p>R$ ${ (o.preco||o.valorMensalidade).toFixed(2) }</p>
-    </div>`).join('');
+      <p>${o.sabor ?? o.tipo}</p>
+      <p>R$ ${(o.preco ?? o.valorMensal).toFixed(2)}</p>
+    </div>
+  `).join('');
 }
-// cadastro
-document.getElementById('formDoce').onsubmit = async e=>{
-  e.preventDefault();
-  const dto = {
-    nome:doceNome.value,
-    sabor:doceSabor.value,
-    preco:parseFloat(docePreco.value),
-    quantidade:parseInt(doceQtde.value)
-  };
-  await fetch(`${API}/doces/criar`,{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(dto)
-  });
-  refreshLista('/doces','listaDoces');
-};
-document.getElementById('formPlano').onsubmit = async e=>{
-  e.preventDefault();
-  const dto = {
-    nome:planoNome.value,
-    tipoPlano:planoTipo.value,
-    valorMensalidade:parseFloat(planoValor.value)
-  };
-  await fetch(`${API}/planos/criar`,{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(dto)
-  });
-  refreshLista('/planos/listar','listaPlanos');
-};
+
 // inicializações
-window.addEventListener('DOMContentLoaded',()=>{
-  refreshLista('/doces','listaDoces');
+window.addEventListener('DOMContentLoaded', ()=>{
+  refreshLista('/doces/listar','listaDoces');
   refreshLista('/planos/listar','listaPlanos');
   addItem(); // um item inicial no cadastro
 });

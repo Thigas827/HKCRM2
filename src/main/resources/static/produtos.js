@@ -1,5 +1,27 @@
 // produtos.js
+// URL base do seu backend
+const API = 'http://localhost:8080';  // ou a URL correta
+// elementos de login
+const formLogin    = document.getElementById('formLogin');
+const loginEmail   = document.getElementById('loginEmail');
+const loginSenha   = document.getElementById('loginSenha');
+const loginMsg     = document.getElementById('loginMsg');
 
+// elementos de cadastro cliente/compra
+const formCadastro             = document.getElementById('formCadastro');
+const nomeCliente              = document.getElementById('nomeCliente');
+const emailCliente             = document.getElementById('emailCliente');
+const endereco                 = document.getElementById('endereco');
+const telefone                 = document.getElementById('telefone');
+const addDoceSelect            = document.getElementById('addDoceSelect');
+const itensCompraSelects       = document.getElementById('itensCompraSelects');
+const cadMsg                   = document.getElementById('cadastroMsg');
+
+// histórico
+const formHistorico    = document.getElementById('formHistorico');
+const clienteSelect    = document.getElementById('clienteSelect');
+const historicoMsg     = document.getElementById('historicoMsg');
+const historicoCompras = document.getElementById('historicoCompras');
 // ============================
 // 1) Utilitários de UI e validação
 // ============================
@@ -148,39 +170,94 @@ const cadastroManager = {
     }
   }
 };
+// ------------ CADASTRO DOCE + PLANO ------------
+document.getElementById('formCadastroDoce').onsubmit = async e => {
+  e.preventDefault();
+
+const dto = {
+ nome:   document.getElementById('nomeDoce').value,
+  sabor:  document.getElementById('saborDoce').value,
+  preco:  parseFloat(document.getElementById('precoDoce').value),
+  quantidade: parseInt(document.getElementById('quantidadeDoce').value, 10)
+  };
+
+  try {
+    // Cria o doce
+    const res = await fetch(`${API}/doces/criar`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(dto)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    uiManager.showFeedback(formCadastroDoce, 'success', 'Doce cadastrado!');
+    formCadastroDoce.reset();
+    // Atualiza lista de doces
+    await refreshLista('/doces/listar', 'listaDoces');
+  } catch (err) {
+    uiManager.showFeedback(formCadastroDoce, 'error', err.message);
+  }
+};
+
+document.getElementById('formPlano').onsubmit = async e => {
+  e.preventDefault();
+
+  const dto = {
+    nome: planoNome.value,
+    tipoPlano: planoTipo.value,
+    valorMensalidade: parseFloat(planoValor.value)
+  };
+
+  try {
+    // Cria o plano
+    const res = await fetch(`${API}/planos/criar`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(dto)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    uiManager.showFeedback(formPlano, 'success', 'Plano cadastrado!');
+    formPlano.reset();
+    // Atualiza lista de planos
+    await refreshLista('/planos/listar', 'listaPlanos');
+  } catch (err) {
+    uiManager.showFeedback(formPlano, 'error', err.message);
+  }
+};
+
+// ajusta o nome do campo do plano na exibição
+async function refreshLista(url, containerId) {
+  try {
+    const res = await fetch(API + url);
+    if (!res.ok) throw new Error('Falha ao carregar dados');
+    const items = await res.json();
+    document.getElementById(containerId).innerHTML = items.map(o=>`
+      <div class="produto-card">
+        <h4>${o.nome}</h4>
+        <p>${o.sabor || o.tipoPlano}</p>
+        <p>R$ ${(o.preco ?? o.valorMensalidade).toFixed(2)}</p>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error(err);
+    document.getElementById(containerId).innerHTML = `<p class="error">Erro: ${err.message}</p>`;
+  }
+}
+
+// ------------ FIM CADASTRO DOCE + PLANO ------------
+
+// no final do DOMContentLoaded, adicione:
+window.addEventListener('DOMContentLoaded', () => {
+  // existentes...
+  refreshLista('/doces/listar', 'listaDoces');
+  refreshLista('/planos/listar', 'listaPlanos');
+});
 
 // ============================
 // 3) Inicialização Geral
 // ============================
 document.addEventListener('DOMContentLoaded', () => {
   cadastroManager.init();
+  themeManager.init();
     // Inicializa o manager de produtos
-    produtosManager.init();
-    // Inicializa o manager de academias
-    academiasManager.init();
-    // Inicializa o manager de doces
-    docesManager.init();
-    // Inicializa o manager de compras
-    comprasManager.init();
-    // Inicializa o manager de usuários
-    usuariosManager.init();
-    // Inicializa o manager de planos
-    planosManager.init();
-    // Inicializa o manager de categorias
-    categoriasManager.init();
-    // Inicializa o manager de pedidos
-    pedidosManager.init();
-    // Inicializa o manager de vendas
-    vendasManager.init();
-    // Inicializa o manager de estoque
-    estoqueManager.init();
-    // Inicializa o manager de relatorios
-    relatoriosManager.init();
-    // Inicializa o manager de autenticação
-    authManager.init();
-    // Inicializa o manager de notificações
-    notificacoesManager.init();
-    // Inicializa o manager de configurações
-    configuracoesManager.init();
-  // ... aqui você pode inicializar outros managers (tabManager, themeManager, etc)
+
 });
