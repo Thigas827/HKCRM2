@@ -29,7 +29,8 @@ public class DoceController {
     private DoceService service;                    // Injeção de dependência do serviço de doce
 
 
-    @GetMapping
+    @GetMapping("/listar") // Define o endpoint para listar todos os doces
+    // O método retorna uma lista de doces
     public ResponseEntity<List<Doce>> getAll() {    // Método para listar todos os planos
         return ResponseEntity.ok(service.listAll()); // Retorna a lista de Doces com status 200 OK
 }

@@ -1,16 +1,8 @@
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: url('chucrute.jpg') no-repeat center center fixed;
-  background-size: 60vw 60vh;
-  background-color: #eaeaea;
+/* Reset básico */
+* {
   margin: 0;
   padding: 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-body.dark {
-  background: #181818 url('chucrute.jpg') no-repeat center center fixed;
-  background-size: 60vw 60vh;
-  color: #e0e0e0;
+  box-sizing: border-box;
 }
 nav {
   background: rgba(34,34,34,0.95);

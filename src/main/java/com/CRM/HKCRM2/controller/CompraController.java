@@ -26,7 +26,7 @@ public class CompraController {
         return ResponseEntity.status(HttpStatus.CREATED).body(compra);
     }
 
-    @GetMapping
+    @GetMapping 
     public ResponseEntity<List<Compra>> listarCompras(@RequestParam UUID clienteId) {
         List<Compra> lista = compraService.listarPorCliente(clienteId);
         if (lista.isEmpty()) {
