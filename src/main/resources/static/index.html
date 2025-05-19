@@ -107,10 +107,9 @@
     <div id="loginMsg"></div>
   </section>
 
- <section id="cadastro">
+<section id="cadastro">
   <h2>Cadastro de Cliente e Compra</h2>
   <form id="formCadastro">
-    <!-- NOVO: tipo de cadastro -->
     <div class="form-group">
       <label for="tipoCadastro">O que deseja cadastrar?</label>
       <select id="tipoCadastro" required>
@@ -120,7 +119,6 @@
       </select>
     </div>
 
-    <!-- Campos de cliente -->
     <div class="form-group">
       <label for="nomeCliente">Nome do Cliente</label>
       <input type="text" id="nomeCliente" required>
@@ -129,23 +127,27 @@
       <label for="emailCliente">E-mail</label>
       <input type="email" id="emailCliente" required>
     </div>
-    <!-- Outros campos (endereço, telefone) continuam aqui… -->
 
-    <!-- NOVO: container de produtos/plano -->
-    <div id="produtosContainer" class="form-group hidden">
-      <label for="produtoSelect">
-        Selecione o <span id="labelProduto">produto</span>
-      </label>
-      <select id="produtoSelect" required>
-        <option value="">Carregando…</option>
-      </select>
+    <!-- estes dois inputs são obrigatórios pois o app.js os usa -->
+    <div class="form-group">
+      <label for="endereco">Endereço</label>
+      <input type="text" id="endereco" required>
+    </div>
+    <div class="form-group">
+      <label for="telefone">Telefone</label>
+      <input type="text" id="telefone" required>
     </div>
 
-    <button type="submit">Cadastrar</button>
-  </form>
+    <!-- container + botão usados pelo addItem()/loadProdutos() do app.js -->
+    <h3>Itens da Compra</h3>
+    <div id="itensCompraSelects"></div>
+    <button type="button" id="addDoceSelect">Adicionar Produto</button>
 
+    <button type="submit">Cadastrar Cliente e Compra</button>
+  </form>
   <div id="cadastroMsg" class="mt-3"></div>
 </section>
+
 
   <section id="cadastroProduto">
     <h2>Cadastro de Produtos</h2>
@@ -338,5 +340,6 @@
       formManager.init();
     });
   </script>
+  <script src="app.js" defer></script>
 </body>
 </html>
