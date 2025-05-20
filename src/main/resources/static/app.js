@@ -1,9 +1,22 @@
 // app.js
 
 // --- Configurações iniciais ---
-const API_BASE = 'http://localhost:8080'; // ajuste se necessário
+const API_BASE     = 'http://localhost:8080';
+let darkMode       = false;
+let listaProdutos  = [];
 
-// --- Navegação entre seções ---
+// Pega elementos que faltavam
+const telefone     = document.getElementById('telefone');
+const formCadastro = document.getElementById('formCadastro');
+
+// --- Máscara de telefone ---
+telefone.addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g,'').slice(0,11);
+  v = v.replace(/^(\d{2})(\d)/g,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
+  e.target.value = v;
+});
+
+// --- Navegação ---
 document.querySelectorAll('nav a').forEach(link => {
   link.addEventListener('click', () => {
     document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
@@ -11,11 +24,9 @@ document.querySelectorAll('nav a').forEach(link => {
   });
 });
 
-// --- Alternar tema claro/escuro ---
+// --- Alternar tema ---
 const themeBtn = document.getElementById('toggleTheme');
-let darkMode = false;
 themeBtn.addEventListener('click', () => setTheme(!darkMode));
-
 function setTheme(dark) {
   darkMode = dark;
   document.body.classList.toggle('dark', dark);
@@ -24,18 +35,107 @@ function setTheme(dark) {
   themeBtn.textContent = dark ? 'Modo Claro' : 'Modo Escuro';
 }
 
+// --- Carrega lista de produtos para os selects e para o resumo ---
+async function carregarProdutosSelect() {
+  try {
+    const resp = await fetch(`${API_BASE}/produtos`);
+    if (!resp.ok) throw new Error(`Status ${resp.status}`);
+    listaProdutos = await resp.json();
+    atualizarSelectsProdutos();
+  } catch (err) {
+    console.error('Erro ao carregar produtos:', err);
+    document.getElementById('cadastroMsg').textContent =
+      'Erro ao carregar lista de produtos.';
+  }
+}
+
+// Cria um bloco <div> com select + input quantidade + botão remover
+function criarSelectProduto() {
+  const div = document.createElement('div');
+  div.style.display = 'flex';
+  div.style.gap = '0.5rem';
+
+  const select = document.createElement('select');
+  listaProdutos.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.nome} - R$ ${p.preco.toFixed(2)}`;
+    select.appendChild(opt);
+  });
+
+  const inputQtd = document.createElement('input');
+  inputQtd.type = 'number';
+  inputQtd.min = '1';
+  inputQtd.value = '1';
+  inputQtd.style.width = '60px';
+
+  const btnRemover = document.createElement('button');
+  btnRemover.type = 'button';
+  btnRemover.textContent = 'Remover';
+  btnRemover.onclick = () => {
+    div.remove();
+    updateSummary();
+  };
+
+  div.append(select, inputQtd, btnRemover);
+
+  // listeners de resumo
+  select.addEventListener('change', updateSummary);
+  inputQtd.addEventListener('input', updateSummary);
+
+  return div;
+}
+
+// Atualiza o container de selects
+function atualizarSelectsProdutos() {
+  const container = document.getElementById('itensCompraSelects');
+  container.innerHTML = '';
+  container.appendChild(criarSelectProduto());
+  updateSummary();
+}
+
+// Resumo de compra (lista + total)
+function updateSummary() {
+  const summaryList    = document.getElementById('summaryList');
+  const summaryTotal   = document.getElementById('summaryTotal');
+  const purchaseSummary= document.getElementById('purchaseSummary');
+
+  let total = 0;
+  summaryList.innerHTML = '';
+
+  document.querySelectorAll('#itensCompraSelects > div').forEach(div => {
+    const sel = div.querySelector('select');
+    const qtd= +div.querySelector('input').value;
+    const prod = listaProdutos.find(p => p.id == sel.value);
+    if (prod && qtd > 0) {
+      const subtotal = prod.preco * qtd;
+      total += subtotal;
+      const li = document.createElement('li');
+      li.textContent = `${prod.nome} × ${qtd} = R$ ${subtotal.toFixed(2)}`;
+      summaryList.appendChild(li);
+    }
+  });
+
+  summaryTotal.textContent = total.toFixed(2);
+  purchaseSummary.classList.toggle('hidden', total === 0);
+}
+
+// Botão “Adicionar Produto”
+document.getElementById('addDoceSelect').onclick = () => {
+  const container = document.getElementById('itensCompraSelects');
+  container.appendChild(criarSelectProduto());
+  updateSummary();
+};
+
 // --- Login (fachada) ---
-const formLogin = document.getElementById('formLogin');
-formLogin.addEventListener('submit', e => {
+document.getElementById('formLogin').addEventListener('submit', e => {
   e.preventDefault();
   document.getElementById('loginMsg').textContent = '✔️ Login realizado!';
-  // exibe aba de cadastro
   document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
   document.getElementById('cadastro').classList.add('active');
 });
 
 // --- Cadastro de Cliente + Compra ---
-const formCadastro = document.getElementById('formCadastro');
 formCadastro.addEventListener('submit', async e => {
   e.preventDefault();
   const dtoCliente = {
@@ -43,13 +143,11 @@ formCadastro.addEventListener('submit', async e => {
     email:    document.getElementById('email').value.trim(),
     endereco: document.getElementById('endereco').value.trim(),
     telefone: document.getElementById('telefone').value.trim(),
-    senha:    '123456'  // senha padrão
+    senha:    '123456'
   };
 
-  // cria cliente
   let resp = await fetch(`${API_BASE}/usuarios/criar`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify(dtoCliente)
   });
   if (!resp.ok) {
@@ -60,84 +158,102 @@ formCadastro.addEventListener('submit', async e => {
 
   // monta itens
   const selects  = [...document.querySelectorAll('#itensCompraSelects select')];
-  const inputsQtd = [...document.querySelectorAll('#itensCompraSelects input[type="number"]')];
-  const itens = selects.map((sel, i) => ({
+  const inputsQtd= [...document.querySelectorAll('#itensCompraSelects input')];
+  const itens = selects.map((sel,i)=>({
     produtoId: +sel.value,
-    quantidade: +inputsQtd[i].value
-  })).filter(it => it.quantidade > 0);
+    quantidade:+inputsQtd[i].value
+  })).filter(it=>it.quantidade>0);
 
-  // registra compra (se houver itens)
   if (itens.length) {
     resp = await fetch(`${API_BASE}/compras`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ clienteId: cliente.id, itens })
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ clienteId:cliente.id, itens })
     });
-    if (!resp.ok) {
-      document.getElementById('cadastroMsg').textContent = '✔️ Cliente criado, mas ❌ erro ao registrar compra.';
-      return;
+    if (resp.ok) {
+      document.getElementById('cadastroMsg').textContent =
+        '✅ Cliente e compra cadastrados com sucesso!';
+    } else {
+      document.getElementById('cadastroMsg').textContent =
+        '✔️ Cliente criado, mas ❌ erro ao registrar compra.';
     }
-    document.getElementById('cadastroMsg').textContent = '✅ Cliente e compra cadastrados com sucesso!';
   } else {
-    document.getElementById('cadastroMsg').textContent = '✅ Cliente cadastrado (sem compra).';
+    document.getElementById('cadastroMsg').textContent =
+      '✅ Cliente cadastrado (sem compra).';
   }
 
-  formCadastro.reset();
-  // recarrega selects
-  window.dispatchEvent(new Event('recarregarSelects'));
+  e.target.reset();
+  carregarProdutosSelect();
 });
 
-// --- Histórico de Compras ---
-const formHistorico = document.getElementById('formHistorico');
-formHistorico.addEventListener('submit', async e => {
+// --- Histórico de Cliente + Compras ---
+document.getElementById('formHistorico').addEventListener('submit', async e => {
   e.preventDefault();
-  const clienteId = document.getElementById('clienteSelect').value;
-  if (!clienteId) return;
+  const id = document.getElementById('clienteSelect').value;
+  if (!id) return;
 
-  const resp = await fetch(`${API_BASE}/compras/detalhes?clienteId=${clienteId}`);
-  if (!resp.ok) {
-    document.getElementById('historicoMsg').textContent = '❌ Erro ao buscar histórico.';
-    return;
-  }
-  const compras = await resp.json();
-  const container = document.getElementById('historicoCompras');
+  const msgEl    = document.getElementById('historicoMsg');
+  const container= document.getElementById('historicoCompras');
+  msgEl.textContent = '';
   container.innerHTML = '';
 
-  if (!compras.length) {
-    document.getElementById('historicoMsg').textContent = 'Nenhuma compra encontrada.';
-    return;
-  }
-  document.getElementById('historicoMsg').textContent = '';
+  try {
+    const resp = await fetch(`${API_BASE}/compras/historico?clienteId=${id}`);
+    if (!resp.ok) throw new Error(resp.status);
+    const { cliente, compras } = await resp.json();
 
-  compras.forEach(c => {
-    const card = document.createElement('div');
-    card.className = 'compra-card';
-    card.innerHTML = `
-      <div>
-        <strong>Compra #${c.id}</strong><br>
-        Data: ${new Date(c.dataCompra).toLocaleString()}<br>
-        Valor Total: R$ ${c.valorTotal.toFixed(2)}
-      </div>
-      <table>
-        <thead><tr><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Subtotal</th></tr></thead>
+    // Dados do cliente
+    const cd = document.createElement('div');
+    cd.innerHTML = `
+      <h3>Cliente</h3>
+      <p><strong>Nome:</strong> ${cliente.nome}</p>
+      <p><strong>E-mail:</strong> ${cliente.email}</p>
+      <p><strong>Telefone:</strong> ${cliente.telefone}</p>
+      <p><strong>Endereço:</strong> ${cliente.endereco}</p>
+      <hr>
+    `;
+    container.appendChild(cd);
+
+    if (!compras.length) {
+      msgEl.textContent = 'Nenhuma compra encontrada.';
+      return;
+    }
+
+    compras.forEach(c => {
+      const divC = document.createElement('div');
+      divC.className = 'compra-card';
+      divC.innerHTML = `
+        <div class="compra-header">
+          <strong>Compra #${c.id}</strong>
+          <span>${new Date(c.dataCompra).toLocaleString()}</span>
+          <span>R$ ${c.valorTotal.toFixed(2)}</span>
+        </div>
+      `;
+      const tbl = document.createElement('table');
+      tbl.innerHTML = `
+        <thead><tr>
+          <th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Subtotal</th>
+        </tr></thead>
         <tbody>
           ${c.itens.map(i=>`
             <tr>
               <td>${i.nomeProduto}</td>
               <td>${i.quantidade}</td>
-              <td>R$ ${i.precoUnitario.toFixed(2)}</td>
+              <td>R$ ${i.precoUnit.toFixed(2)}</td>
               <td>R$ ${i.subtotal.toFixed(2)}</td>
             </tr>
           `).join('')}
         </tbody>
-      </table>
-    `;
-    if (darkMode) card.classList.add('dark');
-    container.appendChild(card);
-  });
+      `;
+      divC.appendChild(tbl);
+      container.appendChild(divC);
+    });
+  } catch (err) {
+    console.error(err);
+    msgEl.textContent = 'Erro ao carregar histórico.';
+  }
 });
 
-// --- Preenche select de clientes ao abrir 'Histórico' ---
+// --- Preencher select de clientes ao clicar em "Histórico" ---
 document.querySelector('a[data-target="historico"]').addEventListener('click', async () => {
   const sel = document.getElementById('clienteSelect');
   sel.innerHTML = '<option>Carregando...</option>';
@@ -148,5 +264,8 @@ document.querySelector('a[data-target="historico"]').addEventListener('click', a
     : '<option>Nenhum cliente</option>';
 });
 
-// --- Inicia tema padrão ---
-document.addEventListener('DOMContentLoaded', () => setTheme(false));
+// Inicia tudo
+document.addEventListener('DOMContentLoaded', () => {
+  setTheme(false);
+  carregarProdutosSelect();
+});

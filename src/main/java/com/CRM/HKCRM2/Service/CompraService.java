@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.CRM.HKCRM2.dtos.CompraDtos;
+import com.CRM.HKCRM2.dtos.HistoricoComprasDto;
 import com.CRM.HKCRM2.dtos.ItemDtos;
+import com.CRM.HKCRM2.dtos.UsuarioDtos;
 import com.CRM.HKCRM2.dtos.CompraDetalhesDto;
 import com.CRM.HKCRM2.dtos.ItemCompraDetalhesDto;
 import com.CRM.HKCRM2.model.Compra;
@@ -129,4 +131,26 @@ public class CompraService {
             })
             .toList();
     }
+    /**
+     * Retorna os dados do cliente + lista de compras detalhadas.
+     */
+    public HistoricoComprasDto listarHistoricoPorCliente(UUID clienteId) {
+        // 1) busca o cliente
+        var cliente = usuarioRepo.findById(clienteId)
+            .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+
+        var usuarioDto = new UsuarioDtos(
+            cliente.getId(),
+            cliente.getNome(),
+            cliente.getEmail(),
+            cliente.getTelefone(),
+            cliente.getEndereco()
+        );
+
+        // 2) monta lista de CompraDetalhesDto (já existe método auxiliar)
+        List<CompraDetalhesDto> listaCompras = listarDetalhesComprasPorCliente(clienteId);
+
+        return new HistoricoComprasDto(usuarioDto, listaCompras);
+    }
 }
+

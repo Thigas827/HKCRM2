@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.CRM.HKCRM2.dtos.CompraDtos;
+import com.CRM.HKCRM2.dtos.HistoricoComprasDto;
 import com.CRM.HKCRM2.dtos.CompraDetalhesDto;
 import com.CRM.HKCRM2.model.Compra;
 import com.CRM.HKCRM2.Service.CompraService;
@@ -48,5 +49,14 @@ public class CompraController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(detalhes);
+    }
+    /**
+     * Histório completo: dados do cliente + suas compras detalhadas.
+     */
+    @GetMapping("/historico")
+    public ResponseEntity<HistoricoComprasDto> historicoPorCliente(
+            @RequestParam UUID clienteId) {
+        var historico = compraService.listarHistoricoPorCliente(clienteId);
+        return ResponseEntity.ok(historico);
     }
 }
