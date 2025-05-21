@@ -43,8 +43,18 @@ CREATE TABLE usuario (
     nome_usuario VARCHAR(255) NOT NULL,
     email_usuario VARCHAR(255) NOT NULL UNIQUE,
     senha_usuario VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de alunos (dados específicos de aluno)
+CREATE TABLE aluno (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    usuario_id UUID NOT NULL UNIQUE REFERENCES usuario(id) ON DELETE CASCADE,
     endereco VARCHAR(255),
     telefone VARCHAR(50),
+    data_nascimento DATE,
+    peso DECIMAL(5,2),
+    altura DECIMAL(5,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -66,6 +76,3 @@ CREATE TABLE compra_item (
 );
 
 INSERT INTO role (nome_role) VALUES ('ROLE_CLIENTE'), ('ROLE_ATENDENTE'), ('ROLE_GERENTE');
-
-ALTER TABLE usuario ADD COLUMN endereco VARCHAR(255);
-ALTER TABLE usuario ADD COLUMN telefone VARCHAR(50);

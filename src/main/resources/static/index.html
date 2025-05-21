@@ -3,221 +3,410 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HKCRM2 - Cadastro e Histórico de Compras</title>
-  <link rel="stylesheet" href="minimal.css">
+  <title>HKCRM2 - Sistema de Gestão</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --success-color: #4caf50;
+      --error-color: #f44336;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7fafc;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    .dark {
+      --primary-color: #60a5fa;
+      --secondary-color: #3b82f6;
+      --text-primary: #f7fafc;
+      --text-secondary: #cbd5e0;
+      --bg-primary: #1a202c;
+      --bg-secondary: #2d3748;
+      --border-color: #4a5568;
+    }
+
+    * {
       margin: 0;
       padding: 0;
-      background: #f8f9fa url('chucrute.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #212529;
+      box-sizing: border-box;
     }
-    body.dark {
-      background: #212529 url('chucrute.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #f8f9fa;
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: var(--transition);
+      min-height: 100vh;
     }
+
     nav {
-      background: #0d6efd;
-      color: #fff;
-      padding: 1rem;
+      background: var(--bg-primary);
+      box-shadow: var(--shadow-md);
+      padding: 1rem 2rem;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
       display: flex;
-      gap: 1rem;
+      align-items: center;
+      gap: 1.5rem;
     }
-    nav.dark, nav.dark a {
-      background: #1a1a2e !important;
-      color: #66b2ff !important;
-    }
+
     nav a {
-      color: #fff;
+      color: var(--text-primary);
       text-decoration: none;
-      cursor: pointer;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: var(--transition);
     }
+
+    nav a:hover {
+      background: var(--bg-secondary);
+      color: var(--primary-color);
+    }
+
+    nav a.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 6rem auto 2rem;
+      padding: 0 2rem;
+    }
+
     section {
       display: none;
+      background: var(--bg-primary);
+      border-radius: 1rem;
+      box-shadow: var(--shadow-md);
       padding: 2rem;
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px #0001;
-      margin-top: 2rem;
-      color: #212529;
+      margin-bottom: 2rem;
     }
-    section.active { display: block; }
-    section.dark {
-      background: #343a40 !important;
-      color: #f8f9fa;
+
+    section.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
     }
-    h2 { margin-top: 0; }
-    h2.dark { color: #0d6efd !important; }
-    form { display: flex; flex-direction: column; gap: 1rem; }
-    input, button, select {
-      padding: 0.5rem;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: var(--text-primary);
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    form {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    input, select, button {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
       font-size: 1rem;
-      border-radius: 0.25rem;
-      border: 1px solid #ced4da;
-      background: #fff;
-      color: #212529;
+      font-family: inherit;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: var(--transition);
     }
-    input.dark, select.dark, button.dark {
-      background: #212529;
-      color: #f8f9fa;
-      border: 1px solid #495057;
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
     }
-    input.dark:focus, select.dark:focus {
-      outline: 2px solid #0d6efd;
-      border-color: #0d6efd;
-    }
+
     button {
-      background: #0d6efd;
-      color: #fff;
+      background: var(--primary-color);
+      color: white;
+      font-weight: 500;
       border: none;
-      transition: background 0.2s;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
+
     button:hover {
-      background: #0b5ed7;
-      color: #fff;
+      background: var(--secondary-color);
     }
-    button.dark {
-      background: #66b2ff;
-      color: #212529;
+
+    button.secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
     }
-    button.dark:hover {
-      background: #339af0;
-      color: #fff;
+
+    button.secondary:hover {
+      background: var(--border-color);
     }
+
+    .card {
+      background: var(--bg-primary);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
-      background: #fff;
-      color: #212529;
+      background: var(--bg-primary);
+      border-radius: 0.5rem;
+      overflow: hidden;
     }
+
     th, td {
-      border: 1px solid #dee2e6;
-      padding: 0.5rem;
+      padding: 1rem;
       text-align: left;
+      border-bottom: 1px solid var(--border-color);
     }
-    table.dark, th.dark, td.dark {
-      background: #212529 !important;
-      color: #f8f9fa !important;
-      border-color: #495057 !important;
+
+    th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-secondary);
     }
-    .hidden { display: none; }
-    .compra-card {
-      background-color: #fff;
-      transition: all 0.3s ease;
-      border: 1px solid #dee2e6;
-      color: #212529;
+
+    tr:hover {
+      background: var(--bg-secondary);
     }
-    .compra-card.dark {
-      background-color: #343a40;
-      border-color: #66b2ff !important;
-      color: #f8f9fa;
+
+    .message {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .compra-card table {
-      margin-top: 1rem;
+
+    .message.success {
+      background: #f0fff4;
+      color: #2f855a;
+      border: 1px solid #9ae6b4;
     }
-    .compra-card table th {
-      background-color: #e9ecef;
-      font-weight: bold;
+
+    .message.error {
+      background: #fff5f5;
+      color: #c53030;
+      border: 1px solid #feb2b2;
     }
-    .compra-card.dark table th {
-      background-color: #23272b;
+
+    #toggleTheme {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
     }
-    .compra-card table td, .compra-card table th {
-      padding: 0.5rem;
-      text-align: left;
-      border: 1px solid #dee2e6;
+
+    .loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1rem;
     }
-    .compra-card.dark table td, .compra-card.dark table th {
-      border-color: #66b2ff;
+
+    .loading.active {
+      display: flex;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        flex-wrap: wrap;
+        padding: 1rem;
+      }
+
+      nav a {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+      }
+
+      main {
+        padding: 0 1rem;
+        margin-top: 8rem;
+      }
+
+      section {
+        padding: 1.5rem;
+      }
+
+      .form-group {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <nav>
-    <a data-target="login">Login</a>
-    <a data-target="cadastro">Cadastro Cliente + Compra</a>
-    <a data-target="historico">Histórico de Compras</a>
-    <a data-target="cadastroProduto">Cadastro de Produto</a>
-    <a data-target="buscaDoce">Buscar Produto</a>
-    <button id="toggleTheme" style="margin-left:auto;">Modo Escuro</button>
+    <a data-target="login" class="active"><i class="fas fa-sign-in-alt"></i> Login</a>
+    <a data-target="cadastro"><i class="fas fa-user-plus"></i> Novo Cliente</a>
+    <a data-target="historico"><i class="fas fa-history"></i> Histórico</a>
+    <a data-target="cadastroProduto"><i class="fas fa-box"></i> Produtos</a>
+    <a data-target="buscaDoce"><i class="fas fa-search"></i> Buscar</a>
+    <a data-target="cadastroAluno"><i class="fas fa-user-graduate"></i> Alunos</a>
+    <a data-target="historicoAluno"><i class="fas fa-clipboard-list"></i> Histórico Alunos</a>
+    <button id="toggleTheme"><i class="fas fa-moon"></i></button>
   </nav>
 
-  <section id="login" class="active">
-    <h2>Login</h2>
-    <form id="formLogin">
-      <input type="email" id="loginEmail" placeholder="E-mail" required>
-      <input type="password" id="loginSenha" placeholder="Senha" required>
-      <button type="submit">Entrar</button>
-    </form>
-    <div id="loginMsg"></div>
-  </section>
+  <main>
+    <section id="login" class="active">
+      <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+      <form id="formLogin" class="form-group">
+        <div class="form-group">
+          <label for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
+        </div>
+        <div class="form-group">
+          <label for="loginSenha">Senha</label>
+          <input type="password" id="loginSenha" placeholder="Sua senha" required>
+        </div>
+        <button type="submit"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+      </form>
+      <div id="loginMsg"></div>
+    </section>
 
-  <section id="cadastro">
-    <h2>Cadastro de Cliente e Compra</h2>
-    <form id="formCadastro">
-      <input type="text" id="nome" placeholder="Nome do Cliente" required>
-      <input type="text" id="email" placeholder="E-mail" required autocomplete="off">
-      <input type="text" id="endereco" placeholder="Endereço">
-      <input type="text" id="telefone" placeholder="Telefone">
-      <h3>Itens da Compra</h3>
-      <div id="itensCompraSelects"></div>
-      <button type="button" id="addDoceSelect">Adicionar Produto</button>
-      <div id="purchaseSummary" class="hidden" style="margin-top:1rem; padding:1rem; border:1px solid #ccc;">
-    <strong>Resumo da Compra:</strong>
-    <ul id="summaryList"></ul>
-    <p><strong>Total: R$ <span id="summaryTotal">0.00</span></strong></p>
-  </div>
-      <button type="submit">Cadastrar Cliente e Compra</button>
-    </form>
-    <div id="cadastroMsg"></div>
-  </section>
+    <section id="cadastro">
+      <h2><i class="fas fa-user-plus"></i> Novo Cliente e Compra</h2>
+      <form id="formCadastro">
+        <div class="form-group">
+          <label for="nome">Nome Completo</label>
+          <input type="text" id="nome" placeholder="Nome do cliente" required>
+        </div>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="E-mail do cliente" required>
+        </div>
+        <div class="form-group">
+          <label for="endereco">Endereço</label>
+          <input type="text" id="endereco" placeholder="Endereço completo">
+        </div>
+        <div class="form-group">
+          <label for="telefone">Telefone</label>
+          <input type="tel" id="telefone" placeholder="(00) 00000-0000">
+        </div>
+        
+        <h3><i class="fas fa-shopping-cart"></i> Itens da Compra</h3>
+        <div id="itensCompraSelects" class="form-group"></div>
+        <button type="button" id="addDoceSelect" class="secondary">
+          <i class="fas fa-plus"></i> Adicionar Produto
+        </button>
+        
+        <div id="purchaseSummary" class="card hidden">
+          <h4><i class="fas fa-receipt"></i> Resumo da Compra</h4>
+          <ul id="summaryList"></ul>
+          <p class="total">Total: R$ <span id="summaryTotal">0.00</span></p>
+        </div>
+        
+        <button type="submit"><i class="fas fa-save"></i> Finalizar Cadastro</button>
+      </form>
+      <div id="cadastroMsg"></div>
+    </section>
 
-  <section id="cadastroProduto">
-    <h2>Cadastro de Produto</h2>
-    <form id="formCadastroProduto">
-      <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
-      <input type="number" id="precoProduto" placeholder="Preço (R$)" min="0" step="0.01" required>
-      <button type="submit">Cadastrar Produto</button>
-    </form>
-    <div id="cadastroProdutoMsg"></div>
-  </section>
+    <section id="cadastroProduto">
+      <h2>Cadastro de Produto</h2>
+      <form id="formCadastroProduto">
+        <input type="text" id="nomeProduto" placeholder="Nome do Produto" required>
+        <input type="number" id="precoProduto" placeholder="Preço (R$)" min="0" step="0.01" required>
+        <button type="submit">Cadastrar Produto</button>
+      </form>
+      <div id="cadastroProdutoMsg"></div>
+    </section>
 
-  <section id="buscaDoce">
-    <h2>Buscar Produto</h2>
-    <form id="formBuscaDoce">
-      <input type="text" id="buscaNomeProduto" placeholder="Nome do Produto">
-      <button type="submit">Buscar</button>
-    </form>
-    <table id="tblProdutos" class="hidden">
-      <thead><tr><th>ID</th><th>Nome</th><th>Preço</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div id="buscaProdutoMsg"></div>
-  </section>
+    <section id="buscaDoce">
+      <h2>Buscar Produto</h2>
+      <form id="formBuscaDoce">
+        <input type="text" id="buscaNomeProduto" placeholder="Nome do Produto">
+        <button type="submit">Buscar</button>
+      </form>
+      <table id="tblProdutos" class="hidden">
+        <thead><tr><th>ID</th><th>Nome</th><th>Preço</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="buscaProdutoMsg"></div>
+    </section>
 
-  <section id="historico">
-    <h2>Histórico de Compras</h2>
-    <form id="formHistorico">
-      <select id="clienteSelect" required><option value="">Selecione o cliente</option></select>
-      <button type="submit">Buscar Compras</button>
-    </form>
-    <div id="historicoCompras"></div>
-    <div id="historicoMsg"></div>
-  </section>
+    <section id="historico">
+      <h2>Histórico de Compras</h2>
+      <form id="formHistorico">
+        <select id="clienteSelect" required><option value="">Selecione o cliente</option></select>
+        <button type="submit">Buscar Compras</button>
+      </form>
+      <div id="historicoCompras"></div>
+      <div id="historicoMsg"></div>
+    </section>
+
+    <section id="cadastroAluno">
+      <h2>Cadastro de Aluno</h2>
+      <form id="formCadastroAluno">
+        <input type="text" id="nomeAluno" placeholder="Nome do Aluno" required>
+        <input type="text" id="emailAluno" placeholder="E-mail" required autocomplete="off">
+        <input type="text" id="enderecoAluno" placeholder="Endereço">
+        <input type="text" id="telefoneAluno" placeholder="Telefone">
+        <input type="date" id="dataNascimentoAluno" placeholder="Data de Nascimento" required>
+        <input type="number" id="pesoAluno" placeholder="Peso (kg)" min="0" step="0.01" required>
+        <input type="number" id="alturaAluno" placeholder="Altura (cm)" min="0" step="0.01" required>
+        <button type="submit">Cadastrar Aluno</button>
+      </form>
+      <div id="cadastroAlunoMsg"></div>
+    </section>
+
+    <section id="historicoAluno">
+      <h2>Histórico de Compras do Aluno</h2>
+      <form id="formHistoricoAluno">
+        <select id="alunoSelect" required><option value="">Selecione o aluno</option></select>
+        <button type="submit">Buscar Compras</button>
+      </form>
+      <div id="dadosAluno"></div>
+      <div id="historicoComprasAluno"></div>
+      <div id="historicoAlunoMsg"></div>
+    </section>
+  </main>
 
   <script>
     // Configuração da API
-    const apiUrl = '/doces'; // Removendo o prefixo /api pois não está configurado no backend
+    const apiUrl = '/doces';
 
     // Navegação
     document.querySelectorAll('nav a').forEach(link => {
       link.onclick = () => {
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
         document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
         document.getElementById(link.dataset.target).classList.add('active');
       };
@@ -227,7 +416,6 @@
     document.getElementById('formLogin').onsubmit = e => {
       e.preventDefault();
       document.getElementById('loginMsg').textContent = 'Login de fachada realizado!';
-      // Mostra as outras seções
       document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
       document.getElementById('cadastro').classList.add('active');
     };
@@ -308,7 +496,6 @@
       div.style.gap = '0.5rem';
       const select = document.createElement('select');
       select.name = 'produtoSelect';
-      
       if (listaProdutos.length === 0) {
         const opt = document.createElement('option');
         opt.value = '';
@@ -323,21 +510,18 @@
           select.appendChild(opt);
         });
       }
-
       const inputQtd = document.createElement('input');
       inputQtd.type = 'number';
       inputQtd.min = '1';
       inputQtd.value = '1';
       inputQtd.style.width = '60px';
       inputQtd.placeholder = 'Qtd';
-      
       const btnRemover = document.createElement('button');
       btnRemover.type = 'button';
       btnRemover.textContent = 'Remover';
       btnRemover.onclick = () => {
         div.remove();
       };
-      
       div.appendChild(select);
       div.appendChild(inputQtd);
       div.appendChild(btnRemover);
@@ -361,9 +545,8 @@
         email: document.getElementById('email').value,
         endereco: document.getElementById('endereco').value,
         telefone: document.getElementById('telefone').value,
-        senha: '123456' // senha padrão para evitar erro no backend
+        senha: '123456'
       };
-      // Cria cliente
       let resp = await fetch('/usuarios/criar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cliente)
       });
@@ -377,7 +560,6 @@
         return;
       }
       const criado = await resp.json();
-      // Itens da compra
       const selects = document.querySelectorAll('#itensCompraSelects select');
       const inputsQtd = document.querySelectorAll('#itensCompraSelects input[type="number"]');
       const itens = [];
@@ -396,7 +578,43 @@
         document.getElementById('cadastroMsg').textContent = 'Cliente cadastrado (sem compra).';
       }
       e.target.reset();
-      carregarDocesSelect();
+      carregarProdutosSelect();
+    };
+
+    // Cadastro de aluno simples
+    document.getElementById('formCadastroAluno').onsubmit = async e => {
+      e.preventDefault();
+      const aluno = {
+        nome: document.getElementById('nomeAluno').value,
+        email: document.getElementById('emailAluno').value,
+        endereco: document.getElementById('enderecoAluno').value,
+        telefone: document.getElementById('telefoneAluno').value,
+        dataNascimento: document.getElementById('dataNascimentoAluno').value,
+        peso: parseFloat(document.getElementById('pesoAluno').value),
+        altura: parseFloat(document.getElementById('alturaAluno').value),
+        senha: '123456'
+      };
+      try {
+        const resp = await fetch('/alunos/criar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(aluno)
+        });
+        if (!resp.ok) {
+          let msg = 'Erro ao cadastrar aluno.';
+          try {
+            const err = await resp.json();
+            if (err && err.message) msg += ' ' + err.message;
+          } catch {}
+          document.getElementById('cadastroAlunoMsg').textContent = msg;
+          return;
+        }
+        document.getElementById('cadastroAlunoMsg').textContent = 'Aluno cadastrado com sucesso!';
+        e.target.reset();
+      } catch (err) {
+        console.error('Erro:', err);
+        document.getElementById('cadastroAlunoMsg').textContent = 'Erro ao cadastrar aluno. Por favor, tente novamente.';
+      }
     };
 
     // Preencher select de clientes no histórico
@@ -421,7 +639,6 @@
         const select = document.getElementById('clienteSelect');
         select.innerHTML = '<option value="">Selecione o cliente</option>';
         select.disabled = false;
-        
         if (clientes && clientes.length > 0) {
           clientes.forEach(c => {
             const opt = document.createElement('option');
@@ -441,7 +658,6 @@
       }
     }
 
-    // Carregar clientes ao abrir aba histórico
     document.querySelector('a[data-target="historico"]').addEventListener('click', preencherClientesHistorico);
 
     // Histórico de compras
@@ -449,7 +665,6 @@
       e.preventDefault();
       const id = document.getElementById('clienteSelect').value;
       if (!id) return;
-      
       try {
         const resp = await fetch(`/compras/detalhes?clienteId=${id}`);
         if (!resp.ok) {
@@ -458,14 +673,11 @@
         const compras = await resp.json();
         const container = document.getElementById('historicoCompras');
         container.innerHTML = '';
-        
         if (!compras.length) {
           document.getElementById('historicoMsg').textContent = 'Nenhuma compra encontrada.';
           return;
         }
-        
         document.getElementById('historicoMsg').textContent = '';
-        
         compras.forEach(compra => {
           const compraDiv = document.createElement('div');
           compraDiv.className = 'compra-card';
@@ -473,7 +685,6 @@
           compraDiv.style.padding = '1rem';
           compraDiv.style.border = '1px solid #ccc';
           compraDiv.style.borderRadius = '8px';
-          
           const header = document.createElement('div');
           header.style.marginBottom = '1rem';
           header.innerHTML = `
@@ -481,7 +692,6 @@
             Data: ${new Date(compra.dataCompra).toLocaleString()}<br>
             <strong>Valor Total: R$ ${compra.valorTotal.toFixed(2)}</strong>
           `;
-          
           const table = document.createElement('table');
           table.style.width = '100%';
           table.style.borderCollapse = 'collapse';
@@ -505,11 +715,9 @@
               `).join('')}
             </tbody>
           `;
-          
           compraDiv.appendChild(header);
           compraDiv.appendChild(table);
           container.appendChild(compraDiv);
-          
           if (darkMode) {
             compraDiv.classList.add('dark');
           }
@@ -517,6 +725,156 @@
       } catch (err) {
         console.error('Erro:', err);
         document.getElementById('historicoMsg').textContent = 'Erro ao carregar o histórico de compras. Por favor, tente novamente.';
+      }
+    };
+
+    // Preencher select de alunos no histórico de aluno
+    async function carregarAlunos() {
+      try {
+        const resp = await fetch('/alunos/todos');
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        const data = await resp.json();
+        return Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.error('Erro ao carregar alunos:', err);
+        document.getElementById('historicoAlunoMsg').textContent = 'Erro ao carregar lista de alunos. Por favor, tente novamente mais tarde.';
+        return [];
+      }
+    }
+
+    async function preencherAlunosHistorico() {
+      try {
+        const alunos = await carregarAlunos();
+        const select = document.getElementById('alunoSelect');
+        select.innerHTML = '<option value="">Selecione o aluno</option>';
+        select.disabled = false;
+        if (alunos && alunos.length > 0) {
+          alunos.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = `${a.nome} (${a.email})`;
+            select.appendChild(opt);
+          });
+        } else {
+          select.innerHTML = '<option value="">Nenhum aluno encontrado</option>';
+          select.disabled = true;
+        }
+      } catch (err) {
+        console.error('Erro ao preencher select de alunos:', err);
+        const select = document.getElementById('alunoSelect');
+        select.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+        select.disabled = true;
+      }
+    }
+
+    document.querySelector('a[data-target="historicoAluno"]').addEventListener('click', preencherAlunosHistorico);
+
+    // Histórico de compras do aluno + dados do aluno
+    document.getElementById('formHistoricoAluno').onsubmit = async e => {
+      e.preventDefault();
+      const id = document.getElementById('alunoSelect').value;
+      if (!id) return;
+
+      // Buscar dados do aluno
+      try {
+        const respAluno = await fetch(`/alunos/${id}`);
+        if (!respAluno.ok) throw new Error('Erro ao buscar dados do aluno.');
+        const aluno = await respAluno.json();
+
+        // Exibir dados do aluno
+        document.getElementById('dadosAluno').innerHTML = `
+          <div style="margin:1rem 0;padding:1rem;border:1px solid #ccc;border-radius:8px;">
+            <strong>Dados do Aluno:</strong><br>
+            Nome: ${aluno.nome || ''}<br>
+            E-mail: ${aluno.email || ''}<br>
+            Endereço: ${aluno.endereco || ''}<br>
+            Telefone: ${aluno.telefone || ''}<br>
+            Data de Nascimento: ${aluno.dataNascimento ? new Date(aluno.dataNascimento).toLocaleDateString() : ''}<br>
+            Peso: ${aluno.peso ? aluno.peso + ' kg' : ''}<br>
+            Altura: ${aluno.altura ? aluno.altura + ' cm' : ''}
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('dadosAluno').innerHTML = '<div style="color:red;">Erro ao carregar dados do aluno.</div>';
+      }
+
+      // Buscar usuarioId do aluno
+      let usuarioId = null;
+      try {
+        const respUsuario = await fetch(`/alunos/${id}/usuario`);
+        if (respUsuario.ok) {
+          usuarioId = await respUsuario.json();
+        }
+      } catch {}
+      if (!usuarioId) {
+        document.getElementById('historicoAlunoMsg').textContent = 'Não foi possível localizar o usuário vinculado ao aluno.';
+        document.getElementById('historicoComprasAluno').innerHTML = '';
+        return;
+      }
+
+      // Buscar histórico de compras do aluno (usando usuarioId)
+      try {
+        const resp = await fetch(`/compras/detalhes?clienteId=${usuarioId}`);
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        const compras = await resp.json();
+        const container = document.getElementById('historicoComprasAluno');
+        container.innerHTML = '';
+        if (!compras.length) {
+          document.getElementById('historicoAlunoMsg').textContent = 'Nenhuma compra encontrada.';
+          return;
+        }
+        document.getElementById('historicoAlunoMsg').textContent = '';
+        compras.forEach(compra => {
+          const compraDiv = document.createElement('div');
+          compraDiv.className = 'compra-card';
+          compraDiv.style.marginBottom = '2rem';
+          compraDiv.style.padding = '1rem';
+          compraDiv.style.border = '1px solid #ccc';
+          compraDiv.style.borderRadius = '8px';
+          const header = document.createElement('div');
+          header.style.marginBottom = '1rem';
+          header.innerHTML = `
+            <strong>Compra #${compra.id}</strong><br>
+            Data: ${new Date(compra.dataCompra).toLocaleString()}<br>
+            <strong>Valor Total: R$ ${compra.valorTotal.toFixed(2)}</strong>
+          `;
+          const table = document.createElement('table');
+          table.style.width = '100%';
+          table.style.borderCollapse = 'collapse';
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço Unitário</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${compra.itens.map(item => `
+                <tr>
+                  <td>${item.nomeProduto}</td>
+                  <td>${item.quantidade}</td>
+                  <td>R$ ${item.precoUnitario.toFixed(2)}</td>
+                  <td>R$ ${item.subtotal.toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          `;
+          compraDiv.appendChild(header);
+          compraDiv.appendChild(table);
+          container.appendChild(compraDiv);
+          if (darkMode) {
+            compraDiv.classList.add('dark');
+          }
+        });
+      } catch (err) {
+        console.error('Erro:', err);
+        document.getElementById('historicoAlunoMsg').textContent = 'Erro ao carregar o histórico de compras. Por favor, tente novamente.';
       }
     };
 
@@ -532,12 +890,39 @@
       document.querySelectorAll('input,select,button').forEach(e => e.classList.toggle('dark', dark));
       document.querySelectorAll('table,th,td').forEach(e => e.classList.toggle('dark', dark));
       document.querySelectorAll('.compra-card').forEach(e => e.classList.toggle('dark', dark));
-      themeBtn.textContent = dark ? 'Modo Claro' : 'Modo Escuro';
+      themeBtn.innerHTML = dark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     }
     themeBtn.onclick = () => setTheme(!darkMode);
-    
+
+    // Melhorar feedback visual
+    function showMessage(elementId, message, type = 'success') {
+      const element = document.getElementById(elementId);
+      element.className = `message ${type}`;
+      element.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        ${message}
+      `;
+    }
+
+    // Adicionar máscara para telefone
+    document.getElementById('telefone').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length <= 11) {
+        value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+        value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+        e.target.value = value;
+      }
+    });
+
+    // Melhorar feedback de loading
+    function showLoading(show) {
+      document.querySelectorAll('.loading').forEach(el => {
+        el.classList.toggle('active', show);
+      });
+    }
+
   </script>
   <script src="app.js" defer></script>
-<script src="produto.js" defer></script>
+  <script src="produto.js" defer></script>
 </body>
 </html>
